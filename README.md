@@ -69,3 +69,5 @@ N}*n
 -#`hq
 ```
 And again, we get nothing, but some random gibberish, and very few strings that make sense (like the version number).
+
+Even over the WiFi update process, the firmware still seems encrypted or compressed (see [./assets/pcap](./assets/pcap/))
