@@ -71,3 +71,17 @@ N}*n
 And again, we get nothing, but some random gibberish, and very few strings that make sense (like the version number).
 
 Even over the WiFi update process, the firmware still seems encrypted or compressed (see [./assets/pcap](./assets/pcap/))
+
+### 1.3.1 Attempt at Dumping the Firmware
+
+Unfortunately, LQFP64 line is small, and soldering 30 AWG wire to the pads is hard. After many failed attempts of JTAGulating and resoldering, I decided to check the output of the device on boot:
+
+![salea capture](./assets/imgs/salea.png)
+
+This proves further that JTAG must've been disabled in the firmware, as there is no TCK (yellow), TDI is pulled high (green), TDO has no output (orange), NJTRST is pulled high (red). 
+
+> Note: TMS is absent in this capture.
+
+Even after pulling nJTRST low, the device still doesn't output anything on TDO. This means that JTAG is disabled somehow, because I am wired directly up to the microchip:
+
+![salea pulled low](./assets/imgs/salea-pull-low.png)
