@@ -88,4 +88,4 @@ Even after pulling nJTRST low, the device still doesn't output anything on TDO. 
 
 ### More OSINT
 
-https://chatgpt.com/share/67fefa07-4530-8009-9f1b-a4f96952f489
+https://chatgpt.com/share/67fefc80-0250-8009-ad0f-d14a4ab460b8
