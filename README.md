@@ -72,6 +72,8 @@ And again, we get nothing, but some random gibberish, and very few strings that 
 
 Even over the WiFi update process, the firmware still seems encrypted or compressed (see [./assets/pcap](./assets/pcap/))
 
+![entropy](./assets/imgs/entropy.png)
+
 ### 1.3.1 Attempt at Dumping the Firmware
 
 Unfortunately, LQFP64 line is small, and soldering 30 AWG wire to the pads is hard. After many failed attempts of JTAGulating and resoldering, I decided to check the output of the device on boot:
