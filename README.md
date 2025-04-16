@@ -85,3 +85,7 @@ This proves further that JTAG must've been disabled in the firmware, as there is
 Even after pulling nJTRST low, the device still doesn't output anything on TDO. This means that JTAG is disabled somehow, because I am wired directly up to the microchip:
 
 ![salea pulled low](./assets/imgs/salea-pull-low.png)
+
+### More OSINT
+
+https://chatgpt.com/share/67fefa07-4530-8009-9f1b-a4f96952f489
