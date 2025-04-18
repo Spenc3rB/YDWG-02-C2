@@ -92,7 +92,7 @@ Even after pulling nJTRST low, the device still doesn't output anything on TDO. 
 
 https://chatgpt.com/share/67fefc80-0250-8009-ad0f-d14a4ab460b8
 
-### Good start... let's move to the ESP8285:
+### Good start... let's move to the ESP8285, since we know it is the chip that is used for updates, and user interaction:
 
 Found boot logs after performing a chip off, with the following pins connected:
 ESP8285 Pin | Serial Adapter
