@@ -88,6 +88,26 @@ Even after pulling nJTRST low, the device still doesn't output anything on TDO. 
 
 ![salea pulled low](./assets/imgs/salea-pull-low.png)
 
-### More OSINT
+### Help me chatgpt!
 
 https://chatgpt.com/share/67fefc80-0250-8009-ad0f-d14a4ab460b8
+
+### Good start... let's move to the ESP8285:
+
+Found boot logs after performing a chip off, with the following pins connected:
+ESP8285 Pin | Serial Adapter
+|----------------|----------------|
+VCC (3.3V) | 3.3V
+GND | GND
+TXD | RX
+RXD | TX
+GPIO0 | GND (for bootloader mode)
+EN (RST) | 3.3V (pulled-up)
+
+![bootlogs](./assets/imgs/bootlogs.png)
+
+And after that, I got to enabling the bootloader mode, and dumping the firmware:
+
+![esptool-windows](./assets/imgs/esptool-windows.png)
+
+A copy of the firmware is available at [./assets/esp8285-ydgw02.bin](./assets/esp8285-ydgw02.bin).
