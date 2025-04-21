@@ -146,6 +146,8 @@ Segment 3: len 0x00278 load 0x3ffe8310 file_offs 0x00000c88 [DRAM]
 Checksum: d8 (valid)
 ```
 
+> https://github.com/esp8266/esp8266-wiki/wiki/Memory-Map
+
 ### 1.4 Web Application Analysis
 
 The web application is hosted on port 80 (unencrypted HTTP). More information about the web application was found through analsyis of the firmware update mechanisms (see [./assets/pcap](./assets/pcap/) and [./assets/binwalk/_flash_contents.bin.extracted](./assets/binwalk/_flash_contents.bin.extracted)).
