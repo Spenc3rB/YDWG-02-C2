@@ -1,0 +1,159 @@
+<!doctype html><html><head><title>YDWG Data Logging</title><link rel=stylesheet href="y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="ui.js"></script><script type="text/javascript">
+
+function setSettings(e,url) {
+    e.preventDefault();
+    var i, inputs = document.querySelectorAll("#" + e.target.id + " input,select");
+    for (i = 0; i < inputs.length; i++) {
+        if (inputs[i].type === "checkbox") {
+            var val = (inputs[i].checked) ? 1 : 0;
+            url += "&" + inputs[i].id + "=" + val;
+        }
+	else if (inputs[i].type === "text")
+	{
+  	    url += "&" + inputs[i].id + "=" + inputs[i].value.trim();
+	}
+        else
+            url += "&" + inputs[i].id + "=" + inputs[i].value;
+    };
+
+    hideWarning();
+    var n = e.target.id.replace("-form", "");
+    var cb = $("#" + n + "-button");
+    addClass(cb, "pure-button-disabled");
+    ajaxSpin("POST", url, function (resp) {
+        showNotification(n + " settings was updated");
+        removeClass(cb, "pure-button-disabled");
+    }, function (s, st) {
+        showWarning("Error: " + st);
+        removeClass(cb, "pure-button-disabled");
+        window.setTimeout(fetchSettings, 100);
+    });
+}
+
+function setULSettings(e) {
+    var url = "/settings/upd_ul?1=1";
+    setSettings(e,url);
+    fetchSettings();	
+}
+
+function setDLSettings(e) {
+    var url = "/settings/upd_dl?1=1";
+    setSettings(e,url);
+    fetchSettings();	
+}
+
+function setLogInterval(e) {
+    var url = "/settings/upd_li?1=1";
+    setSettings(e,url);
+    fetchSettings();	
+}
+
+function cnfClean()
+{
+	var url = "/settings/upd_li?1=1&cleandb=6";
+	if (confirm('Are you sure you want to remove all data from the database?')) {
+	    var cb = $("#clear-button");
+	    addClass(cb, "pure-button-disabled");
+	    ajaxSpin("POST", url, function (resp) {
+        	showNotification("Database is clean");
+	        removeClass(cb, "pure-button-disabled");
+	    }, function (s, st) {
+	        showWarning("Error: " + st);
+	        removeClass(cb, "pure-button-disabled");
+	    });
+	}
+}
+
+function updaterectime()
+{
+    var li = parseInt($("#interval").value);
+    var po = parseInt($("#points").innerText);
+    if (li == 0)
+    {
+	$("#rectime").innerText = "";
+    }
+    else
+    {
+	var days = (po*li) / (24*60*60);
+	$("#rectime").innerText = " " + days.toFixed(0)+" days " + Math.round((days-Math.floor(days))*24) + " hour(s)";
+    }    
+}
+
+function updateDetails()
+{
+    t = "<b>" + $("#dataset").options[ $("#dataset").selectedIndex ].text + ":</b> ";
+    switch( parseInt($("#dataset").value) )
+    {
+    case 7:
+        t += "date/time, GPS position, COG, SOG, AWA, AWS, TWA, TWS, heading, STW, depth.";
+        break;
+    case 6:
+        t += "Basic Set + RPM, engine hours, warnings, coolant temperature, 2 x fuel tanks, 2 x water tanks, waste tank, 2 x batteries (voltage and current), 2 x digital switching banks, rudder angle, log, yaw, roll and pitch, air and water temperature, air pressure, humidity (outside or inside), maximum AWS.";
+        break;
+    case 5:
+	t += "Basic Set + RPM, engine hours, warnings, oil and coolant temperatures, fuel rate, alternator voltage, 3 x fuel tanks, 2 x water tanks, waste tank, 3 x batteries (voltage and current), 2 x digital switching banks, log, air and water temperatures.";
+	break;
+    case 4:
+	t += "Basic Set + RPM, engine hours, warnings, oil and coolant temperatures, fuel rate for two engines; 3 x fuel tanks, 2 x water tanks, waste tank, 2 x batteries (voltage and current), 2 x digital switching banks, log, water temperature.";
+	break;
+    }
+    $("#details").innerHTML = t;
+}
+
+function displaySettings(data) {
+
+    if (data.interval == null)
+        return;
+
+    function setElement(el, val) {
+        if (el == null)
+            return;
+
+        if (el.type === "checkbox") {
+            el.checked = val === "true";
+            // onEnabledChanged(el);
+        }
+        else
+            el.value = val;
+    }
+
+    $("#points").innerText = data.points;
+    setElement($("#interval"),data.interval);
+    setElement($("#distance"),data.distance);
+    setElement($("#priority"),data.priority);
+    setElement($("#dataset"),data.dataset);
+
+    setElement($("#range"),data.range);
+    setElement($("#key"),data.key);
+
+    if (data.status.length > 0) $("#status").innerText = data.status;
+
+    if (data.has_points === "true") $("#has_points").innerHTML = "The Gateway has points to upload.";
+    else $("#has_points").innerHTML = "The Gateway <u>has no</u> points to upload.";
+
+    updaterectime();
+    updateDetails();
+
+    $("#logging-spinner").setAttribute("hidden", "");
+    $("#upload-spinner").setAttribute("hidden", "");
+    $("#download-spinner").setAttribute("hidden", "");
+
+    $("#upload-form").removeAttribute("hidden");
+    $("#download-form").removeAttribute("hidden");
+    $("#logging-form").removeAttribute("hidden");
+}
+
+function fetchSettings() {
+  ajaxJson("GET", "/settings/logging", displaySettings, function () {
+    window.setTimeout(fetchSettings, 1000);
+  });
+}
+
+</script></head><body><div id=layout><div id=main><div class=header><h1>Data Logging</h1></div><div class=content><div class=pure-g><div class=pure-u-1><div class=card><h1>Logging</h1><div id=logging-spinner class="spinner spinner-small"></div><p>The Router automatically saves the most important boat data to the internal memory. You can configure server #3 to "Memory" protocol and download a GPX, XML or CSV file with these data using a web browser.</p><form action="#" id=logging-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class="pure-u-1 pure-u-md-1-2"><label>Logging interval (min. <span id=points></span> points)</label></div><div class="pure-u-1 pure-u-md-1-2"><select id=interval href="#" class=pure-u-1 style="width:auto; display:inline-block;" onchange="updaterectime()"><option value=0>Off</option><option value=15>15 seconds</option><option value=30>30 seconds</option><option value=60>1 minute</option><option value=120>2 minute</option><option value=300>5 minutes</option><option value=600>10 minutes</option><option value=900>15 minutes</option><option value=1800>30 minutes</option><option value=3600>1 hour</option></select><div class=popup>Logging interval</div><span id=rectime><span></div><div class="pure-u-1 pure-u-md-1-2"><label>Data source (priority)</label></div><div class="pure-u-1 pure-u-md-1-2"><select id=priority href="#" class=pure-u-1 style="width:auto; display:inline-block;"><option value=0>NMEA 2000 Only</option></select><div class=popup>Data source</div></div><div class="pure-u-1 pure-u-md-1-2"><label>Data set (does not affect already recorded)</label></div><div class="pure-u-1 pure-u-md-1-2"><select id=dataset href="#" class=pure-u-1 style="width:auto; display:inline-block;" onchange="updateDetails()"><option value=7>Basic Set</option><option value=6>Sailing Yacht</option><option value=5>Motor Boat</option><option value=4>Twin Engines</option></select><div class=popup>Set of data to record, does not affect already recorded data</div></div><div class=pure-u-1 style="background-color: #f2f2f2; font-style: italic;"><span id=details></span></div><div class=pure-u-1><label for=distance class=pure-checkbox><input id=distance type=checkbox>Do not save points closer than 5 meters apart</label></div></div><button id=logging-button type=submit class="pure-button button-primary">Update</button></fieldset></form><p>Click the button below to remove all data from the database.</p><button id=clear-button class="pure-button button-primary" onclick="cnfClean()">Clear all data</button></div><div class=card><h1>Download</h1><div id=download-spinner class="spinner spinner-small"></div><p>To speed up data downloading in Memory protocol, you can limit the time range of downloaded data. This setting has no effect on data recording and storing of data.</p><form action="#" id=download-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class=pure-u-1><label>Download range&nbsp; <select id=range href="#" class=pure-u-1 style="width:auto; display:inline-block;"><option value=7>Last 7 days</option><option value=10>Last 10 days</option><option value=14>Last 14 days</option><option value=30>Last 30 days</option><option value=92>Last 3 month</option><option value=0>All data</option></select></label><div class=popup>Download range</div></div></div><button id=download-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div><div class=card><h1>Upload</h1><div id=upload-spinner class="spinner spinner-small"></div><p>Automatically upload data to the storage at yachtd.com server. Boat key is required. To get the boat key and learn more, please, visit <a href=https://cloud.yachtd.com/>cloud.yachtd.com</a>.</p><p><span id=has_points></span> Last connection result: <i><span id=status>No data available</status></i></p><form action="#" id=upload-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class=pure-u-1><label>Boat's key</label><input type=text id=key /><div class=popup>Visit cloud.yachtd.com to obtain the key</div></div></div><button id=upload-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div></div></div></div></div></div><script type="text/javascript">
+		onLoad(function() {
+		    fetchSettings();
+		    bnd($("#upload-form"),  "submit", setULSettings);
+		    bnd($("#download-form"), "submit", setDLSettings);
+		    bnd($("#logging-form"), "submit", setLogInterval);
+		});
+</script></body></html>

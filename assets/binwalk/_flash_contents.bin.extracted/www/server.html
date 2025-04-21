@@ -1,0 +1,131 @@
+<!doctype html><html><head><title>YDWG NMEA Servers</title><link rel=stylesheet href="y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="ui.js"></script><script type="text/javascript">
+
+function setNmeaSettings(e) {
+    e.preventDefault();
+    var url = "/nmea_settings/update?1=1";
+    var i, inputs = document.querySelectorAll("#" + e.target.id + " input,select");
+    for (i = 0; i < inputs.length; i++) {
+        if (inputs[i].type === "checkbox") {
+            var val = (inputs[i].checked) ? 1 : 0;
+            url += "&" + inputs[i].id + "=" + val;
+        }
+        else
+            url += "&" + inputs[i].id + "=" + inputs[i].value;
+    };
+
+    hideWarning();
+    var n = e.target.id.replace("-form", "");
+    var cb = $("#" + n + "-button");
+    addClass(cb, "pure-button-disabled");
+    ajaxSpin("POST", url, function (resp) {
+        showNotification(n + " updated");
+        removeClass(cb, "pure-button-disabled");
+    }, function (s, st) {
+        showWarning("Error: " + st);
+        removeClass(cb, "pure-button-disabled");
+        window.setTimeout(fetchNmeaSettings, 100);
+    });
+}
+
+function onEnabledChanged(cb) {
+    var sid = "";
+    switch (cb.id) {
+        case "ns_enabled0":
+            sid = "0";
+            break;
+        case "ns_enabled1":
+            sid = "1";
+            break;
+        case "ns_enabled2":
+            sid = "2";
+            break;
+    }
+
+    if (cb.checked) {
+        $("#ns_type" + sid).removeAttribute("disabled");
+        $("#ns_protocol" + sid).removeAttribute("disabled");
+        $("#ns_port" + sid).removeAttribute("disabled");
+        $("#ns_direction" + sid).removeAttribute("disabled");
+        onProtocolChanged();
+    }
+    else {
+        $("#ns_type" + sid).setAttribute("disabled", "");
+        $("#ns_protocol" + sid).setAttribute("disabled", "");
+        $("#ns_port" + sid).setAttribute("disabled", "");
+        $("#ns_direction" + sid).setAttribute("disabled", "");
+    }
+
+    
+}
+
+function onProtocolChanged(){
+    //if (Debug)
+    if($("#ns_protocol2").value > 1){
+        $("#ns_type2").value = 0; //TCP
+        $("#ns_type2").setAttribute("disabled", "");
+
+        $("#ns_direction2").value = 1; // Transmit
+        $("#ns_direction2").setAttribute("disabled", "");
+    }
+    else{
+	if ($("#ns_enabled2").checked)
+	{
+          $("#ns_type2").removeAttribute("disabled");
+          $("#ns_direction2").removeAttribute("disabled");
+	}
+    }
+}
+
+var firstTime = true;
+
+function displaySettings(data) {
+    if (data.server == null)
+        return;
+
+/*  if (data.hardware != null && data.hardware == "1.10" && firstTime)
+      {	
+	var x = document.getElementById("ns_protocol2");
+	var option = document.createElement("option");
+	option.value = 3;
+	option.text = "Memory";
+	x.add(option);
+	firstTime = false;
+     } */
+
+    function setElement(el, val) {
+        if (el == null)
+            return;
+
+        if (el.type === "checkbox") {
+            el.checked = val === "true";
+            onEnabledChanged(el);
+        }
+        else
+            el.value = val;
+    }
+
+    data.server.forEach(function (v) {
+        setElement($("#ns_type" + v.id), v.type);
+        setElement($("#ns_protocol" + v.id), v.protocol);
+        setElement($("#ns_port" + v.id), v.port);
+        setElement($("#ns_direction" + v.id), v.direction);
+        setElement($("#ns_enabled" + v.id), v.enabled);
+
+    });
+
+    $("#Server-spinner").setAttribute("hidden", "");
+    $("#Server-form").removeAttribute("hidden");
+}
+
+function fetchNmeaSettings() {
+  ajaxJson("GET", "/nmea_settings/settings", displaySettings, function () {
+    window.setTimeout(fetchNmeaSettings, 1000);
+  });
+}
+
+</script></head><body><div id=layout><div id=main><div class=header><h1>NMEA Data Servers</h1></div><div class=content><div class=pure-g><div class=pure-u-1><div class=card><h1><div id=Server-spinner class="spinner spinner-small"></div></h1><p>You can configure up to three servers. Up to three connections (from three different applications on one device, or from three devices with one marine application running on each) are allowed on TCP servers the same time. In the case of using UDP protocol, the number of devices or applications using the data port is not limited. We recommend using UDP protocol when possible.</p><p>Note: <a href=/guide.html>Web Gauges</a> require Server #1 configured to NMEA 0183 protocol.</p><form action="#" id=Server-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class=pure-u-1><hr></div><div class=pure-u-1><label for=ns_enabled0 class=pure-checkbox><input id=ns_enabled0 type=checkbox onchange='onEnabledChanged(this);'/>Server #1</label></div><div class="pure-u-1 pure-u-md-1-4"><label>Network Protocol</label><select id=ns_type0 class=pure-u-1 href="#"><option value=0>TCP</option><option value=1>UDP</option></select><div class=popup>Server connection type</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Data Protocol</label><select id=ns_protocol0 class=pure-u-1 href="#"><option value=0>NMEA 0183</option><option value=1>RAW</option></select><div class=popup>Type of data protocol</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Port</label><input type=text id=ns_port0 class=pure-u-23-24 /><div class=popup>Server port</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Direction</label><select id=ns_direction0 href="#" class=pure-u-1><option value=1>Transmit Only</option><option value=2>Receive Only</option><option value=3>Both</option></select><div class=popup>Data direction</div></div><div class=pure-u-1><hr></div><div class=pure-u-1><label for=ns_enabled1 class=pure-checkbox><input id=ns_enabled1 type=checkbox onchange='onEnabledChanged(this);'/>Server #2</label></div><div class="pure-u-1 pure-u-md-1-4"><label>Network Protocol</label><select id=ns_type1 class=pure-u-1 href="#"><option value=0>TCP</option><option value=1>UDP</option></select><div class=popup>Server connection type</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Data Protocol</label><select id=ns_protocol1 class=pure-u-1 href="#"><option value=0>NMEA 0183</option><option value=1>RAW</option></select><div class=popup>Type of data protocol</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Port</label><input type=text id=ns_port1 class=pure-u-23-24 /><div class=popup>Connection port</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Direction</label><select id=ns_direction1 href="#" class=pure-u-1><option value=1>Transmit Only</option><option value=2>Receive Only</option><option value=3>Both</option></select><div class=popup>Data direction</div></div><div class=pure-u-1><hr></div><div class=pure-u-1><label for=ns_enabled2 class=pure-checkbox><input id=ns_enabled2 type=checkbox onchange='onEnabledChanged(this);'/>Server #3</label></div><div class="pure-u-1 pure-u-md-1-4"><label>Network Protocol</label><select id=ns_type2 class=pure-u-1 href="#"><option value=0>TCP</option><option value=1>UDP</option></select><div class=popup>Server connection type</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Data Protocol</label><select id=ns_protocol2 class=pure-u-1 onchange="onProtocolChanged()" href="#"><option value=0>NMEA 0183</option><option value=1>RAW</option><option value=2>Debug</option><option value=3>Memory</option></select><div class=popup>Type of data protocol</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Port</label><input type=text id=ns_port2 class=pure-u-23-24 /><div class=popup>Connection port</div></div><div class="pure-u-1 pure-u-md-1-4"><label>Direction</label><select id=ns_direction2 href="#" class=pure-u-1><option value=1>Transmit Only</option><option value=2>Receive Only</option><option value=3>Both</option></select><div class=popup>Data direction</div></div></div><button id=Server-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div></div></div></div></div></div><script type="text/javascript">
+		onLoad(function() {
+		    fetchNmeaSettings();
+		    bnd($("#Server-form"), "submit", setNmeaSettings);
+		});
+</script></body></html>

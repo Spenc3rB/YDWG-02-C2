@@ -88,11 +88,11 @@ Even after pulling nJTRST low, the device still doesn't output anything on TDO. 
 
 ![salea pulled low](./assets/imgs/salea-pull-low.png)
 
-### Help me chatgpt!
+#### Help me chatgpt!
 
 https://chatgpt.com/share/67fefc80-0250-8009-ad0f-d14a4ab460b8
 
-### Good start... let's move to the ESP8285, since we know it is the chip that is used for updates, and user interaction:
+#### Good start... let's move to the ESP8285, since we know it is the chip that is used for updates, and user interaction:
 
 Found boot logs after performing a chip off, with the following pins connected:
 ESP8285 Pin | Serial Adapter
@@ -110,4 +110,42 @@ And after that, I got to enabling the bootloader mode, and dumping the firmware:
 
 ![esptool-windows](./assets/imgs/esptool-windows.png)
 
-A copy of the firmware is available at [./assets/esp8285-ydgw02.bin](./assets/esp8285-ydgw02.bin).
+### 1.3.2 Actually dumping the firmware
+
+The command in the image above didn't get me far, until I did the following:
+
+Ran this command to extract the flash instead:
+```
+esptool.py -p PORT -b 115200 read_flash 0 ALL flash_contents.bin
+```
+> https://docs.espressif.com/projects/esptool/en/latest/esp8266/esptool/basic-commands.html
+
+A copy of the firmware is available at [./assets/flash_contents.bin](./assets/flash_contents.bin).
+
+But that doesn't render well in ghidra, so I used the following tool to convert it to an ELF file:
+
+```
+esp2elf flash_contents.bin flash_contents.elf
+```
+
+Hell yeah! Now ghidra confirms the entry point we already figured out from using the esptool:
+
+```
+esptool image_info flash_contents.bin
+
+esptool.py v4.8.1
+File size: 2097152 (bytes)
+Detected image type: ESP8266
+Image version: 1
+Entry point: 40100438
+3 segments
+
+Segment 1: len 0x00968 load 0x40100000 file_offs 0x00000008 [IRAM]
+Segment 2: len 0x00308 load 0x3ffe8000 file_offs 0x00000978 [DRAM]
+Segment 3: len 0x00278 load 0x3ffe8310 file_offs 0x00000c88 [DRAM]
+Checksum: d8 (valid)
+```
+
+### 1.4 Web Application Analysis
+
+The web application is hosted on port 80 (unencrypted HTTP). More information about the web application was found through analsyis of the firmware update mechanisms (see [./assets/pcap](./assets/pcap/) and [./assets/binwalk/_flash_contents.bin.extracted](./assets/binwalk/_flash_contents.bin.extracted)).

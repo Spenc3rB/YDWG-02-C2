@@ -1,0 +1,49 @@
+<!doctype html><html><head><title>YDWG Login</title><link rel=stylesheet href="y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="ui.js"></script><script type="text/javascript">
+
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    location.search
+    .substr(1)
+        .split("&")
+        .forEach(function (item) {
+        tmp = item.split("=");
+        if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
+    });
+    return result;
+}
+
+function login(e){
+	e.preventDefault();
+    var url = "/login?1=1";
+
+    url += "&login=" + $("#login").value.trim().toLowerCase();
+    url += "&password=" + $("#password").value.trim();
+    var r = findGetParameter("r");    
+
+    var button = $("#login-button");
+    addClass(button, "pure-button-disabled");
+
+    ajaxReq("POST", url, function (resp) {
+        removeClass(button, "pure-button-disabled");
+        if(r !== null)
+        	window.location = r
+        else
+        	window.location = "/home.html"
+    }, function (s, st) {
+        showWarning("Invalid credentials");
+        removeClass(button, "pure-button-disabled");
+    });
+}
+
+</script><style type="text/css">
+		html,body { height: 100%; margin: 0px; padding: 0px; }
+		.full { height: 100%; background-color: #3699B0;}
+		.login-page { width: 393px;	padding: 3% 0 0; margin: auto; } 
+		.header {border-bottom: inherit;}
+    </style></head><body bgcolor="#3699B0"><div class=full><div id=messages><div id=warning hidden></div><div id=notification hidden></div></div><div class=header border-bottom=inherit><div><img src="yachtd.png"></div><h1 style="margin-top:10"><span class=esp>NMEA 2000 Wi-Fi Gateway</span></h1><h3>YDWG-02, Version: <span id=version></span></h3><h3>Serial: <span id=sn></span></h3><h3><a href=/g.html>Web Gauges</a> | <a href=/guide.html>Gauges Guide</a></h3></div><div class=login-page><div class=card><form id=login-form class="pure-form pure-form-stacked" onsubmit="return false;"><fieldset><input id=login type=text placeholder=Login><input id=password type=password placeholder=Password><button id=login-button type=submit class="pure-button button-primary pure-u-1">Sign in</button></fieldset></form></div></div><div class=header><p>Default credentials: admin / admin</p><p>&copy; 2018 <a href=http://www.yachtd.com/products/wifi_gateway.html?ydwg>Yacht Devices Ltd.</a></p></div></div><script type="text/javascript">
+onLoad(function() {
+  getVersion();
+  bnd($("#login-form"), "submit", login);
+});
+</script></body></html>

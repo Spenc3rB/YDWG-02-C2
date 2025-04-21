@@ -1,0 +1,42 @@
+<!doctype html><html><head><title>YDWG Update</title><link rel=stylesheet href="y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="ui.js"></script><script type="text/javascript">
+function flashFirmware(e) {
+  e.preventDefault();
+  var fw_data = document.getElementById('fw-file').files[0];
+      
+  $("#fw-form").setAttribute("hidden", "");
+  $("#fw-spinner").removeAttribute("hidden");
+  hideWarning();
+
+  showNotification("Firmware is being updated ...");
+
+  var err_cb = function(status, text){
+      $("#fw-spinner").setAttribute("hidden", "");
+      $("#fw-form").removeAttribute("hidden");
+      if(text)
+        showWarning(text);
+      else{
+        ajaxReq("GET", "/flash/lasterror", function (resp) {
+            if(resp)
+              showWarning(resp);
+            else
+              showWarning("Unable to update firmware");
+        });
+      }
+  };
+
+  ajaxReq("POST", "/flash/upload", function (resp) {
+    ajaxReq("GET", "/flash/reboot", function (resp) {
+      showNotification("Firmware has been successfully uploaded, trying to update...");
+      setTimeout(function(){ window.location.reload()}, 4000);
+
+      $("#fw-spinner").setAttribute("hidden", "");
+      $("#fw-form").removeAttribute("hidden");
+    });
+  },err_cb, fw_data);
+}
+</script></head><body><div id=layout><div id=main><div class=header><h1>Upgrade Firmware</h1></div><div class=content><div class=pure-g><div class="pure-u-1 pure-u-md-1"><div class=card><h1>Firmware Update <div id=fw-spinner class="spinner spinner-small" hidden></div></h1><form action="#" id=fw-form class=pure-form><p>The firmware upload takes <nobr>10..40</nobr> seconds. After this period you'll get a message that the update is started. You will see chaotic flashes of the LED for <nobr>40..60</nobr> seconds, and the YDWG will be rebooted when the update procedure is finished.</p><p>The firmware update cannot damage the Device and all settings will remain intact (unless otherwise stated in the README.TXT file provided with the update). For example, if the update procedure is interrupted due to power failure, it will be re-started at the next power on.</p><p>You can roll back all firmware updates and return to the factory firmware with the hardware reset.</p><p>Current firmware version: <span style="font-weight: bold;" id=version></span></p><p>Click the button below and locate the WUPDATE.BIN file on the disk.</p><div class=pure-form-stacked><input type=file name=fw-file id=fw-file /></div><button id=fw-button type=submit class="pure-button button-primary"> Update the firmware </button></form></div></div></div></div></div></div><script type="text/javascript">
+onLoad(function() {
+  getVersion();
+  bnd($("#fw-form"), "submit", flashFirmware);
+});
+</script></body></html>

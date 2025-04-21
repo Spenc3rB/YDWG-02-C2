@@ -1,0 +1,107 @@
+<!doctype html><html><head><title>YDWG Access Point</title><link rel=stylesheet href="./y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="./ui.js"></script><script type="text/javascript">
+var specials = [];
+specials["ap_ssid"] = "SSID name";
+specials["ap_password"] = "PASSWORD";
+specials["ap_maxconn"] = "Max Connections number";
+specials["ap_channel"] = "Channel number";
+specials["ap_beacon"] = "Beacon Interval";
+
+var onShowWifiInfo = function(data){
+  if(data.mode === "Access Point")
+  {
+    $("#wifi-apwarn").setAttribute("hidden", ""); 
+    document.querySelector('select[name="ap_channel"]').value = parseInt($("#wifi-apchan").innerText);
+  }
+  else
+    $("#wifi-apwarn").removeAttribute("hidden");
+};
+
+function changeWifiMode(m) {
+  blockScan = 1;
+  hideWarning();
+  ajaxSpin("POST", "/wifi/setmode?mode=" + m, function(resp) {
+    showNotification("Mode changed");
+    window.setTimeout(getWifiInfo, 100);
+    blockScan = 0;
+  }, function(s, st) {
+    showWarning("Error changing mode: " + st);
+    window.setTimeout(getWifiInfo, 100);
+    blockScan = 0;
+  });
+}
+
+function changeApSettings(e) {
+  e.preventDefault();
+  var url = "/wifi/apchange?100=1";
+  var i, inputs = document.querySelectorAll("#" + e.target.id + " input,select");
+  for (i = 0; i < inputs.length; i++) {
+    if (inputs[i].type == "checkbox") {
+      var val = (inputs[i].checked) ? 1 : 0;
+      url += "&" + inputs[i].name + "=" + val;
+    } else {
+      var clean = inputs[i].value.replace(/[^!-~]/g, "");
+      var comp = clean.localeCompare(inputs[i].value);
+      if ( comp != 0 ){
+        showWarning("Invalid characters in " + specials[inputs[i].name]);
+        return;
+      }
+      url += "&" + inputs[i].name + "=" + clean;
+    }
+  };
+
+  hideWarning();
+  var n = e.target.id.replace("-form", "");
+  var cb = $("#" + n + "-button");
+  addClass(cb, "pure-button-disabled");
+  ajaxSpin("POST", url, function (resp) {
+    showNotification(n + " updated");
+    removeClass(cb, "pure-button-disabled");
+    window.setTimeout(getWifiInfo, 100);
+  }, function (s, st) {
+    showWarning(st);
+    removeClass(cb, "pure-button-disabled");
+    window.setTimeout(fetchApSettings, 2000);
+  });
+}
+
+function displayApSettings(data) {
+  Object.keys(data).forEach(function (v) {
+    el = $("#" + v);
+    if (el != null) {
+      if (el.nodeName === "INPUT") el.value = data[v];
+      else el.innerHTML = data[v];
+      return;
+    }
+
+    el = document.querySelector('input[name="' + v + '"]');
+    if (el == null)
+      el = document.querySelector('select[name="' + v + '"]');
+
+    if (el != null) {
+      if (el.type == "checkbox") {
+        el.checked = data[v] == "enabled";
+      } else el.value = data[v];
+    }
+  });
+
+  $("#AP_Settings-spinner").setAttribute("hidden", "");
+  $("#AP_Settings-form").removeAttribute("hidden");
+  showWarning("Don't modify SOFTAP parameters with active connections");
+  window.setTimeout(hideWarning(), 2000);
+}
+
+function fetchApSettings() {
+  ajaxJson("GET", "/wifi/apinfo", displayApSettings, function () {
+    window.setTimeout(fetchApSettings, 1000);
+  });
+}
+</script></head><body><div id=layout><div id=main><div class=header><h1>Wi-Fi Access Point Configuration</h1></div><div class=content><div class=pure-g><div class="pure-u-1 pure-u-md-1-2"><div class=card><h1>Access Point State</h1><div id=wifi-spinner class="spinner spinner-small"></div><table id=wifi-table class="pure-table pure-table-horizontal" hidden><tbody><tr><td>WiFi Mode:</td><td id=wifi-mode></td></tr><tr><td>Access Point SSID:</td><td id=wifi-apssid></td></tr><tr><td>Access Point Password:</td><td id=wifi-appass></td></tr><tr><td>Access Point Channel:</td><td id=wifi-apchan></td></tr><tr><td>Hidden Network:</td><td id=wifi-aphidd></td></tr><tr><td>Authentication:</td><td id=wifi-apauth></td></tr><tr><td>Access Point MAC:</td><td id=wifi-apmac></td></tr><tr><td colspan=2 id=wifi-apwarn></td></tr></tbody></table></div></div><div class="pure-u-1 pure-u-md-1-2"><div class=card><h1>Settings</h1><div id=AP_Settings-spinner class="spinner spinner-small"></div><form action="#" id=AP_Settings-form class=pure-form hidden><legend>Remember that you can always reset YDWG settings with the hidden button and it returns to SSID "YDWG" and password 12345678.</legend><div class=pure-form-stacked><label>Network Name (SSID)</label><input type=text name=ap_ssid /><div class=popup>Change the name of your Access Point</div></div><div class=pure-form-stacked><label>Password</label><input type=text name=ap_password /><div class=popup>Password must be 8 characters at least</div></div><div class=pure-form-stacked><label>Authentication</label><select name=ap_authmode href="#"><option value=0>OPEN</option><option value=1>WEP</option><option value=2>WPA/PSK</option><option value=3>WPA2/PSK</option><option value=4>WPA/WPA2/PSK</option></select><div class=popup>Default WPA/WPA2/PSK</div></div><div class=pure-form-stacked><label>Channel number</label><select name=ap_channel href="#"><option value=1>1 (default)</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option><option value=6>6</option><option value=7>7</option><option value=8>8</option><option value=9>9</option><option value=10>10</option><option value=11>11</option><option value=12>12</option><option value=13>13</option></select><div class=popup>Choose a less crowded channel to avoid conflict with other equipment</div></div><div class=form-horizontal><label><input type=checkbox name=ap_hidden />Make the network hidden</label><div class=popup>Check this box to hide you network, you will need to type network name to connect</div></div><button id=AP_Settings-button type=submit class="pure-button button-primary"> Change Access Point settings </button></form></div></div></div></div></div></div><script type="text/javascript">
+onLoad(function() {
+  // Show info about AP	
+  getWifiInfo();
+  // Fetch actual settings
+  fetchApSettings();
+  // Wire-up form
+  bnd($("#AP_Settings-form"), "submit", changeApSettings);
+});
+</script></body></html>

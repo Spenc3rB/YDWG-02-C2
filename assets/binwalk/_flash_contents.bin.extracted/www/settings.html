@@ -1,0 +1,145 @@
+<!doctype html><html><head><title>YDWG NMEA Settings</title><link rel=stylesheet href="y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="ui.js"></script><script type="text/javascript">
+
+function setSettings(e,url) {
+    e.preventDefault();
+    var i, inputs = document.querySelectorAll("#" + e.target.id + " input,select");
+    for (i = 0; i < inputs.length; i++) {
+        if (inputs[i].type === "checkbox") {
+            var val = (inputs[i].checked) ? 1 : 0;
+            url += "&" + inputs[i].id + "=" + val;
+        }
+        else
+            url += "&" + inputs[i].id + "=" + encodeURIComponent(inputs[i].value);
+    };
+
+    hideWarning();
+    var n = e.target.id.replace("-form", "");
+    var cb = $("#" + n + "-button");
+    addClass(cb, "pure-button-disabled");
+    ajaxSpin("POST", url, function (resp) {
+        showNotification(n + " updated");
+        removeClass(cb, "pure-button-disabled");
+    }, function (s, st) {
+        showWarning("Error: " + st);
+        removeClass(cb, "pure-button-disabled");
+        window.setTimeout(fetchNmeaSettings, 100);
+    });
+}
+
+function setNmeaSettings(e) {
+    var url = "/settings/update?1=1";
+    setSettings(e,url);
+}
+
+function setElement(el, val) {
+        if (el == null)
+            return;
+
+        if (el.type === "checkbox") {
+            el.checked = val === "true";
+            // onEnabledChanged(el);
+        }
+        else
+            el.value = val;
+}
+
+
+function displaySettings(data) {
+
+    if (data.autopilot == null)
+        return;
+
+    setElement($("#ray_autopilot"),data.autopilot.ray_autopilot);
+    setElement($("#yd_autopilot"),data.autopilot.yd_autopilot);
+    setElement($("#wpt_confirm"),data.autopilot.wpt_confirm);
+    setElement($("#rmb_n2k_var"),data.autopilot.rmb_n2k_var);
+    setElement($("#talker_id"),data.talkerid);
+    setElement($("#windcalc"),data.windcalc);
+
+    setElement($("#sea"),data.xdr.sea);
+    setElement($("#air_t"),data.xdr.air_t);
+    setElement($("#air_h"),data.xdr.air_h);
+    setElement($("#ins_t"),data.xdr.ins_t);
+    setElement($("#ins_h"),data.xdr.ins_h);
+    setElement($("#baro_p"),data.xdr.baro_p);
+    setElement($("#baro_b"),data.xdr.baro_b);
+    setElement($("#p_temp"),data.xdr.p_temp);
+    setElement($("#s_temp"),data.xdr.s_temp);
+    setElement($("#p_boost"),data.xdr.p_boost);
+    setElement($("#s_boost"),data.xdr.s_boost);
+    setElement($("#p_hours"),data.xdr.p_hours);
+    setElement($("#s_hours"),data.xdr.s_hours);
+    setElement($("#p_volt"),data.xdr.p_volt);
+    setElement($("#s_volt"),data.xdr.s_volt);
+    setElement($("#p_rate"),data.xdr.p_rate);
+    setElement($("#s_rate"),data.xdr.s_rate);
+    setElement($("#exhaust"),data.xdr.exhaust);
+    setElement($("#yaw"),data.xdr.yaw);
+    setElement($("#pitch"),data.xdr.pitch);
+    setElement($("#roll"),data.xdr.roll);
+
+    $("#settings-spinner").setAttribute("hidden", "");
+    $("#settings-form").removeAttribute("hidden");
+    $("#talkerid-form").removeAttribute("hidden");
+    $("#xdr-form").removeAttribute("hidden");
+}
+
+function ydapUpdateSettings(data) {
+  $("#address").innerText = data.address;
+  $("#mode").innerText  = data.mode;
+  setElement($("#progress"),data.progress);
+  setElement($("#limits"),data.limits);
+  setElement($("#rudder"),data.rudder);
+  setElement($("#vessel"),data.vessel);
+  setElement($("#compass"),data.compass);
+
+  $("#run_limits").disabled = (data.mode != "Ready"); 
+  $("#run_rudder").disabled = (data.mode != "Ready"); 
+  $("#run_vessel").disabled = (data.mode != "Ready"); 
+  $("#run_compass").disabled = (data.mode != "Ready"); 
+
+  window.setTimeout(fetchYdapSettings, 2000);
+}
+
+function fetchYdapSettings() {
+  ajaxJson("GET", "/nmea_settings/ydap", ydapUpdateSettings, function () {
+    window.setTimeout(fetchYdapSettings, 1000);
+  });
+}
+
+function runYdap(num)
+{
+    ajaxSpin("POST", "/settings/run_calibration?c="+num, function (resp) {
+        showNotification("Calibrartion started");
+    }, function (s, st) {
+        showWarning("Unable to start calibration");
+    });
+}
+
+function fetchNmeaSettings() {
+  ajaxJson("GET", "/settings/settings", displaySettings, function () {
+    window.setTimeout(fetchNmeaSettings, 1000);
+  });
+}
+
+function setNmeaTalkerID(e) {
+    var url = "/settings/upd_ti?1=1";
+    setSettings(e,url);
+    fetchNmeaSettings();	
+}
+
+function setNmeaXDR(e) {
+    var url = "/settings/upd_xdr?1=1";
+    setSettings(e,url);
+    fetchNmeaSettings();
+}
+
+</script></head><body><div id=layout><div id=main><div class=header><h1>NMEA Settings</h1></div><div class=content><div class=pure-g><div class=pure-u-1><div class=card><h1>NMEA 0183 Output</h1><div id=settings-spinner class="spinner spinner-small"></div><p>NMEA 0183 sentences start with a $ or ! symbol, followed by a two-character talker ID and a 3-char sentence formatter. These elements are followed by data fields (after the comma). The sentence is finished by a check sum after the * (asterisk) symbol. Valid values for talker ID are in the 'AA'..'ZZ' range or '--'. Note that MaxSea application may ignore sentences with talker ID '--'.</p><p>The wind sensor always measures apparent wind; true wind angle is calculated using SOG or STW data and true wind direction requires COG or heading. Historically, STW/HDG are used to calculate true wind. However, this is not correct in places with strong current, and the "true" value of true wind can be obtained using the SOG/HDG pair. Gateway offers four options: SOG/HDG (if you love truth), SOG/COG (if you have GPS only), STW/HDG (if tradition is most important), or you can disable calculations. In the last case the gateway reports true wind data only if they are calculated by another device available on NMEA 2000 network.</p><form action="#" id=talkerid-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class=pure-u-1><hr></div><div class=pure-u-1><label>Talker ID for output sentences&nbsp; <input type=text size=2 maxlength=2 id=talker_id style="width:auto; display:inline-block;" class=pure-u-1></label><div class=popup>Talker ID for output sentences</div></div><div class=pure-u-1><label>True wind calculation&nbsp; <select id=windcalc href="#" class=pure-u-1 style="width:auto; display:inline-block;"><option value=0>Any</option><option value=1>STW / HDG</option><option value=2>SOG / COG</option><option value=3>SOG / HDG</option><option value=4>Disable</option></select></label><div class=popup>True wind calculation</div></div></div><button id=talkerid-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div><div class=card><h1>NMEA 0183 Autopilot Control</h1><p>Some autopilots use proprietary NMEA 2000 messages to control the autopilot in addition to standard messages. The settings below are designed for Raymarine and Yacht Devices autopilots and used during conversion of NMEA 0183 autopilot sentences to NMEA 2000:</p><p><ul><li>First setting turns on proprietary Raymarine messages. Tested with SPX30, EV-1 Course Computer and ACU200 Actuator Unit. The autopilot must be manually set to the Auto mode first, and returns to the Auto mode when route is finished. <li>Enable the second setting to control Yacht Devices Autopilot from NMEA 0183 and/or Web Gauges. To follow a track, launch navigation in the application and activate Track mode from the autopilot buttons or from the Web Gauges. Enabling this setting is also necessary to <a href=/guide.html>control the Raymarine autopilot from the Web Gauges</a>. <li>When the application switches to the next waypoint, Raymarine autopilot asks for confirmation on the pilot head and a chart plotter. A third setting allows automatic confirmation of the course changing. <li>Magnetic variation is required to process an RMB sentence of NMEA 0183. It can be obtained from the NMEA 0183 HDG or RMC sentences or, if these sentences are absent, you can tick the third setting to use a variation available in NMEA 2000 messages.</ul></p><p>In addition to the warnings in the autopilot manual, we strongly recommend testing how your software controls the autopilot on open water. We also strongly recommend monitoring autopilot behavior in narrow channels or near shallow water for the first time.</p><form action="#" id=settings-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class=pure-u-1><hr></div><div class=pure-u-1><label for=ray_autopilot class=pure-checkbox><input id=ray_autopilot type=checkbox />Control of Raymarine autopilots from NMEA 0183</label></div><div class=pure-u-1><label for=yd_autopilot class=pure-checkbox><input id=yd_autopilot type=checkbox />Control of Yacht Devices autopilots from NMEA 0183 and Web Gauges</label></div><div class=pure-u-1><label for=wpt_confirm class=pure-checkbox><input id=wpt_confirm type=checkbox />Automatic confirmation when changing the waypoint (works with Raymarine autopilots only)</label></div><div class=pure-u-1><label for=rmb_n2k_var class=pure-checkbox><input id=rmb_n2k_var type=checkbox />Use (if required) of NMEA 2000 variation for RMB sentence of NMEA 0183 processing</label></div><div class=pure-u-1 hidden><label for=can_speed class=pure-checkbox><input id=can_speed type=checkbox />Set 500 kbps speed for CAN interface and make it read-only</label></div></div><button id=settings-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div><div class=card><h1>Yacht Devices Autopilot Control</h1><p>If the device is not found, check if Yacht Devices Autopilot support is enabled in the previous section. The Autopilot can be managed from NMEA 2000, NMEA 0183 and/or Web Gauges. To follow a track, launch navigation in the application and activate Track mode from the autopilot buttons or from the Web Gauges.</p><p>Device: <i><span id=address></span></i></p><p>Mode: <i><span id=mode></span></i></p><p>Progress: <i><progress id=progress max=100 value=0></progress></i></p><div class=pure-g><div class=pure-u-1-2><label for=limits class=pure-checkbox><input id=limits type=checkbox disabled> Rudder limits calibration done</label><div class=popup>Set the rudder to the center position and RUN calibration. Move the rudder to the far PORT position, wait two seconds and move the rudder to the far STARBOARD position. Wait for two beeps confirming the end of calibration.</div></div><div class=pure-u-1-2><button id=run_limits onclick="runYdap(1)" style="margin-bottom: 0.5em;" class="pure-button button-primary" disabled>Run</button><div class=popup>Set the rudder to the center position and RUN calibration. Move the rudder to the far PORT position, wait two seconds and move the rudder to the far STARBOARD position. Wait for two beeps confirming the end of calibration.</div></div><div class=pure-u-1-2><label for=rudder class=pure-checkbox><input id=rudder type=checkbox disabled> Rudder calibration done</label><div class=popup>Move at a speed of 2-3 knots. Set the rudder to the center position and RUN calibration. The Autopilot will make 6 steering movements, to STARBOARD and to PORT. Wait for two beeps confirming the end of calibration.</div></div><div class=pure-u-1-2><button id=run_rudder onclick="runYdap(2)" style="margin-bottom: 0.5em;" class="pure-button button-primary" disabled>Run</button><div class=popup>Move at a speed of 2-3 knots. Set the rudder to the center position and RUN calibration. The Autopilot will make 6 steering movements, to STARBOARD and to PORT. Wait for two beeps confirming the end of calibration.</div></div><div class=pure-u-1-2><label for=vessel class=pure-checkbox><input id=vessel type=checkbox disabled> Vessel parameters calibration done</label><div class=popup>Move at a speed of 2-3 knots in calm water. Set the rudder to the center position and RUN calibration. The Autopilot will start a series of 15 degrees zig-zag turns, deflecting Rudder to fixed 7 degrees angle. Wait for two beeps confirming the end of calibration. The autopilot will switch to AUTO mode after calibration is complete.</div></div><div class=pure-u-1-2><button id=run_vessel onclick="runYdap(3)" style="margin-bottom: 0.5em;" class="pure-button button-primary" disabled>Run</button><div class=popup>Move at a speed of 2-3 knots in calm water. Set the rudder to the center position and RUN calibration. The Autopilot will start a series of 15 degrees zig-zag turns, deflecting Rudder to fixed 7 degrees angle. Wait for two beeps confirming the end of calibration. The autopilot will switch to AUTO mode after calibration is complete.</div></div><div class=pure-u-1-2><label for=compass class=pure-checkbox><input id=compass type=checkbox disabled>Compass calibration done</label><div class=popup>Move at a speed of 2-3 knots in calm water. Set the rudder to the center position and RUN calibration. The Autopilot will start 360 degrees clockwise turn, and then 360 degrees counter-clockwise turn. Wait for two beeps confirming the end of calibration. The autopilot will switch to AUTO mode after calibration is complete.</div></div><div class=pure-u-1-2><button id=run_compass onclick="runYdap(4)" style="margin-bottom: 0.5em;" class="pure-button button-primary" disabled>Run</button><div class=popup>Move at a speed of 2-3 knots in calm water. Set the rudder to the center position and RUN calibration. The Autopilot will start 360 degrees clockwise turn, and then 360 degrees counter-clockwise turn. Wait for two beeps confirming the end of calibration. The autopilot will switch to AUTO mode after calibration is complete.</div></div></div></div><div class=card><h1>XDR Sentence Settings</h1><p>This section allows you to define sensor identifiers for printing outgoing XDR sentences. The length is limited to 16 characters. An empty identifier means that XDR will not be sent for that type of data. The yaw, pitch and roll settings are also used to generate outgoing XDR sentences.</p><form action="#" id=xdr-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-g><div class=pure-u-1><hr></div><div class=pure-u-1-2>Sea temperature&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=sea style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Sea temperature</div></div><div class=pure-u-1-2>Air (outside) temperature&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=air_t style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Air (outside) temperature</div></div><div class=pure-u-1-2>Outside humidity&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=air_h style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Outside humidity</div></div><div class=pure-u-1-2>Inside temperature&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=ins_t style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Inside temperature</div></div><div class=pure-u-1-2>Inside humidity&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=ins_h style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Inside humidity</div></div><div class=pure-u-1-2>Atmospheric pressure, Pa&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=baro_p style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Atmospheric pressure, Pascal</div></div><div class=pure-u-1-2>Atmospheric pressure, Bar&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=baro_b style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Atmospheric pressure, Bar</div></div><div class=pure-u-1-2>Port engine, temperature&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=p_temp style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Port engine, temperature</div></div><div class=pure-u-1-2>Stbd engine, temperature&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=s_temp style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Stbd engine, temperature</div></div><div class=pure-u-1-2>Port engine, boost&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=p_boost style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Port engine, boost</div></div><div class=pure-u-1-2>Stbd engine, boost&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=s_boost style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Stbd engine, boost</div></div><div class=pure-u-1-2>Port engine, hours&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=p_hours style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Port engine, hours</div></div><div class=pure-u-1-2>Stbd engine, hours&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=s_hours style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Stbd engine, hours</div></div><div class=pure-u-1-2>Port engine, alternator&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=p_volt style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Port engine, alternator</div></div><div class=pure-u-1-2>Stbd engine, alternator&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=s_volt style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Stbd engine, alternator</div></div><div class=pure-u-1-2>Port engine, fuel rate&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=p_rate style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Port engine, fuel rate</div></div><div class=pure-u-1-2>Stbd engine, fuel rate&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=s_rate style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Stbd engine, fuel rate</div></div><div class=pure-u-1-2>Exhaust gas temperature&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=exhaust style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Exhaust gas temperature</div></div><div class=pure-u-1-2>Yaw&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=yaw style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Yaw</div></div><div class=pure-u-1-2>Pitch&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=pitch style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Pitch</div></div><div class=pure-u-1-2>Roll&nbsp;</div><div class=pure-u-1-2><input type=text size=16 maxlength=16 id=roll style="width:auto; display:inline-block;" class=pure-u-1><div class=popup>Roll</div></div></div><button id=xdr-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div></div></div></div></div></div><script type="text/javascript">
+		onLoad(function() {
+		    fetchNmeaSettings();
+		    bnd($("#settings-form"), "submit", setNmeaSettings);
+		    bnd($("#talkerid-form"), "submit", setNmeaTalkerID);
+		    bnd($("#xdr-form"), "submit", setNmeaXDR);
+		    fetchYdapSettings();
+		});
+</script></body></html>

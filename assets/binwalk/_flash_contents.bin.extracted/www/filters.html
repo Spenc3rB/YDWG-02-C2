@@ -1,0 +1,156 @@
+<!doctype html><html><head><title>YDWG Data Filters</title><link rel=stylesheet href="y.css"><meta name=viewport content="width=device-width, initial-scale=1"><script src="ui.js"></script><script type="text/javascript">
+var sf;
+var srv=0;
+
+function saveFilter(e)
+{
+  e.preventDefault();
+
+    var url = "/filters/setfilter?1=1";
+    var i, inputs = document.querySelectorAll("#" + e.target.id + " input,select");
+    for (i = 0; i < inputs.length; i++) {
+        if (inputs[i].type === "checkbox") {
+            var val = (inputs[i].checked) ? 1 : 0;
+            url += "&" + inputs[i].id + "=" + val;
+        }
+        else if (inputs[i].id === "data")
+        {
+           if (inputs[i].value.length == 0) url += "&" + inputs[i].id + "=" + "%20";
+           else url += "&" + inputs[i].id + "=" + inputs[i].value;
+        }
+        else
+        {
+            url += "&" + inputs[i].id + "=" + inputs[i].value;
+        }
+    };
+
+    srv =  $("#server").value;
+
+    hideWarning();
+    var n = e.target.id.replace("-form", "");
+    var cb = $("#" + n + "-button");
+    addClass(cb, "pure-button-disabled");
+    ajaxSpin("POST", url, function (resp) {
+        showNotification(n + " updated");
+        removeClass(cb, "pure-button-disabled");
+        fetchFilters();
+    }, function (s, st) {
+        showWarning("Error: " + st);
+        removeClass(cb, "pure-button-disabled");
+        window.setTimeout(fetchFilters, 100);
+    });
+
+}
+
+function displayFilters(){
+
+    if (sf.filters == null)
+        return;
+
+    var server = $("#server").value;
+    var protocol = $("#protocol").value;
+    var filter = $("#filter").value;
+
+    function fltr(i)
+    {
+      return (i.server == server && i.protocol == protocol && i.filter == filter);
+    }
+
+    var items = sf.filters.filter(fltr);
+    if (items == null || items.length < 1)
+    {
+    	$("#type").value = 1;
+        $("#data").value = "";
+        return false;
+    }
+    else
+    {
+    	$("#type").value = items[0].type;
+        $("#data").value = items[0].data;
+        return true;
+    }
+}
+
+function srvChanged()
+{
+    var server = $("#server").value;
+    if (server < 3) $("#protocol").innerHTML = '<option value="0">NMEA 0183</option><option value="1">NMEA 2000 (RAW)</option>';
+    else $("#protocol").innerHTML = '<option value="1">NMEA 2000 (RAW)</option>';
+    displayFilters();
+}
+
+function json_update(json1, json2){
+    var out = json1;
+
+    if (out == null || out.filters == null)
+    {
+        out = json2;
+    }
+    else
+    {
+       for(var k in json2.filters){
+
+        var n = json2.filters[k];
+
+        function fltr(i) { return (i.server == n.server && i.protocol == n.protocol && i.filter == n.filter); }
+
+        var items = out.filters.filter(fltr);
+        if (items == null || items.length < 1)
+        {
+               out.filters.push(n);
+        }
+        else
+        {
+    	       items[0].type = n.type;
+	       items[0].data = n.data;
+    	}
+      }
+    }
+    return out;
+}
+
+function nextFilter()
+{
+  for(var k = 0; k < 4; k++){
+      function fltr(i) { return (i.server == k); }
+      var items = sf.filters.filter(fltr);
+      if (items == null || items.length < 1)
+      {
+        srv = k;
+        return true;
+      }
+  }
+  return false;
+}
+
+function setFilters(json) {
+   sf = json_update(sf, json);   
+   if (!displayFilters())
+   {
+    srv = $("#server").value;
+    fetchFilters();
+   }
+   else if (nextFilter())
+   {
+     fetchFilters();
+   }
+   else
+   {
+    $("#Server-spinner").setAttribute("hidden", "");
+    $("#Server-form").removeAttribute("hidden");
+   }
+}
+
+function fetchFilters() {
+  // /filters/getfilters?srv=
+  ajaxJson("GET", "/filters/getfilters?srv=" + srv, setFilters, function () {
+    window.setTimeout(fetchFilters, 800);
+  });
+}
+
+</script></head><body><div id=layout><div id=main><div class=header><h1>NMEA Data Filters</h1></div><div class=content><div class=pure-g><div class=pure-u-1><div class=card><h1><div id=Server-spinner class="spinner spinner-small"></div></h1><p>Each data server has four filter lists: two for incoming and outgoing NMEA 0183 messages, and two for incoming and outgoing NMEA 2000 messages (used for RAW protocol). Which filter is used depends on the server data protocol settings.</p><p>The Device also has two "Global" filter lists, which define what NMEA 2000 messages can be passed from the NMEA 2000 network to the Gateway and in the reverse direction.</p><p>NMEA 0183 filters contain 3-char NMEA 0183 sentence formatters separated by a space character. NMEA 2000 (RAW protocol) filters contain PGNs or pairs of 29-bit message identifiers and a mask, separated by a comma. Example of NMEA 0183 and NMEA 2000 (RAW) filters:</p><ul><li>GLL VDO VDM DPT</li><li>0x1FD0700 0x1FFFFFF, 130310, 1 255, 130311</li></ul><form action="#" id=Server-form class="pure-form pure-form-stacked" hidden><fieldset><div class=pure-u-1><hr></div><div class=pure-g><legend class=pure-u-1>Choose Filter:</legend><div class="pure-u-1 pure-u-md-1-3"><label>Server</label><select id=server class=pure-u-1 href="#" onchange="srvChanged()"><option value=0>Server #1</option><option value=1>Server #2</option><option value=2>Server #3</option><option value=3>Global</option></select><div class=popup>Choose filter</div></div><div class="pure-u-1 pure-u-md-1-3" onchange="displayFilters()"><label>Data Protocol</label><select id=protocol class=pure-u-1 href="#"><option value=0>NMEA 0183</option><option value=1>NMEA 2000 (RAW)</option></select><div class=popup>Type of data protocol</div></div><div class="pure-u-1 pure-u-md-1-3" onchange="displayFilters()"><label>Filter</label><select id=filter href="#" class=pure-u-1><option value=0>Transmit</option><option value=1>Receive</option></select><div class=popup>Data direction</div></div><legend class=pure-u-1>Define Filter Settings:</legend><div class="pure-u-1 pure-u-md-1-3"><label>Filter Type</label><select id=type class=pure-u-1 href="#"><option value=0>White</option><option value=1>Black</option></select><div class=popup>Black or white</div></div><div class="pure-u-1 pure-u-md-2-3"><label>Filter Settings</label><input type=text id=data class=pure-u-1><div class=popup>Filter settings</div></div></div><br><button id=Server-button type=submit class="pure-button button-primary">Update</button></fieldset></form></div></div></div></div></div></div><script type="text/javascript">
+		onLoad(function() {
+		    fetchFilters();
+		    bnd($("#Server-form"), "submit", saveFilter);
+		});
+</script></body></html>
