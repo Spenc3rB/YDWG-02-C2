@@ -151,3 +151,32 @@ Checksum: d8 (valid)
 ### 1.4 Web Application Analysis
 
 The web application is hosted on port 80 (unencrypted HTTP). More information about the web application was found through analsyis of the firmware update mechanisms (see [./assets/pcap](./assets/pcap/) and [./assets/binwalk/_flash_contents.bin.extracted](./assets/binwalk/_flash_contents.bin.extracted)).
+
+After loging into the YDGW gateway, we can see cleartext credentials pass through an HTTP request:
+
+```
+POST /login?1=1&login=admin&password=admin HTTP/1.1
+Host: 192.168.4.1
+Content-Length: 0
+Accept-Language: en-US,en;q=0.9
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: */*
+Origin: http://192.168.4.1
+Referer: http://192.168.4.1/login.html
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+```
+and
+```
+POST /wifi/apchange?100=1&ap_ssid=YDWG&ap_password=123456578&ap_authmode=4&ap_hidden=0 HTTP/1.1
+Host: 192.168.4.1
+Content-Length: 0
+Accept-Language: en-US,en;q=0.9
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: */*
+Origin: http://192.168.4.1
+Referer: http://192.168.4.1/point.html
+Accept-Encoding: gzip, deflate, br
+Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997
+Connection: keep-alive
+```
