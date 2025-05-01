@@ -180,3 +180,10 @@ Accept-Encoding: gzip, deflate, br
 Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997
 Connection: keep-alive
 ```
+
+### 1.4.1 TCP and UDP servers
+
+As mentioned in chapter `IV. Configuration of Application Protocols` the YDGW-02 "With the factory settings, Gateway has the Server #1 enabled and pre-configured to
+use TCP port 1456 and the NMEA 0183 data protocol.."
+
+This means by default we gain access to unencrypted NMEA 0183, which contains things like positioning, gps data, navigation info, wind and weather, heading and compass, and AIS target info. nm
