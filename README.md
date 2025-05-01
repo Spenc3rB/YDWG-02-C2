@@ -186,4 +186,5 @@ Connection: keep-alive
 As mentioned in chapter `IV. Configuration of Application Protocols` the YDGW-02 "With the factory settings, Gateway has the Server #1 enabled and pre-configured to
 use TCP port 1456 and the NMEA 0183 data protocol.."
 
-This means by default we gain access to unencrypted NMEA 0183, which contains things like positioning, gps data, navigation info, wind and weather, heading and compass, and AIS target info. nm
+This means by default we gain access to unencrypted NMEA 0183, which contains things like positioning, gps data, navigation info, wind and weather, heading and compass, and AIS target info.
+
