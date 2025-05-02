@@ -248,3 +248,7 @@ Content-Type: application/json
 
 { "version": "1.74", "sn": "00604470", "hardware": "1.00", "build": "43" }
 ```
+
+Talk about AIS spoofing future work.
+
+Try out cloud service.
