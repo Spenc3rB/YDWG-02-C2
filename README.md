@@ -152,7 +152,7 @@ Checksum: d8 (valid)
 
 The web application is hosted on port 80 (unencrypted HTTP). More information about the web application was found through analsyis of the firmware update mechanisms (see [./assets/pcap](./assets/pcap/) and [./assets/binwalk/_flash_contents.bin.extracted](./assets/binwalk/_flash_contents.bin.extracted)).
 
-After loging into the YDGW gateway, we can see cleartext credentials pass through an HTTP request:
+After loging into the YDGW gateway, we can see cleartext credentials pass through an HTTP request, handled by AJAX:
 
 ```
 POST /login?1=1&login=admin&password=admin HTTP/1.1
@@ -188,3 +188,63 @@ use TCP port 1456 and the NMEA 0183 data protocol.."
 
 This means by default we gain access to unencrypted NMEA 0183, which contains things like positioning, gps data, navigation info, wind and weather, heading and compass, and AIS target info.
 
+If any other servers are turned on, data can be sent or received, based on the configuration by the user. 
+
+### XSS Vulnerability
+
+### Clickjacking Vulnerability
+
+### Exposed APIs
+
+Denial of Service
+```
+/flash/reboot
+```
+
+```
+GET /settings/logging HTTP/1.1
+Host: 192.168.235.25
+Accept-Language: en-US,en;q=0.9
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: */*
+Referer: http://192.168.235.25/logging.html
+Accept-Encoding: gzip, deflate, br
+Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997
+Connection: keep-alive
+```
+and
+```
+HTTP/1.0 200 OK
+Server: YDWG
+Connection: close
+Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+Expires: 0
+Content-Type: application/json
+
+{ "interval": "300", "points" : 16256, "priority" : 0, "dataset" : 7, "distance" : "true", "range" : 0, "key" : "Prolonged_blast$Pilot_boat*Fix~R2ushnLqH", "status" : "2025-05-02 20:42:19 Data uploaded (last point GMT 2024-12-19 21:58:00)", "has_points" : "false"}
+```
+paired with
+```
+GET /version HTTP/1.1
+Host: 192.168.235.25
+Accept-Language: en-US,en;q=0.9
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: */*
+Referer: http://192.168.235.25/flash.html
+Accept-Encoding: gzip, deflate, br
+Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997
+Connection: keep-alive
+```
+and
+```
+HTTP/1.0 200 OK
+Server: YDWG
+Connection: close
+Cache-Control: no-cache, no-store, must-revalidate
+Pragma: no-cache
+Expires: 0
+Content-Type: application/json
+
+{ "version": "1.74", "sn": "00604470", "hardware": "1.00", "build": "43" }
+```
