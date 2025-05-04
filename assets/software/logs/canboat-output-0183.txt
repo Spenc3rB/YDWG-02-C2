@@ -1,0 +1,63 @@
+1970-01-01-00:00:15.900 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:15.961 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.084 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.200 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.264 3  67 255 126992 System Time:  SID = 4; Source = GPS; Date = 1994.03.23; Time = 12:35:19
+1970-01-01-00:00:16.265 2  67 255 129026 COG & SOG, Rapid Update:  SID = 4; COG Reference = True; COG = 69.0 deg; SOG = 0.00 m/s
+1970-01-01-00:00:16.265 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.323 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.384 2  67 255 129026 COG & SOG, Rapid Update:  SID = Unknown; COG Reference = True; COG = 134.4 deg; SOG = 5.40 m/s
+1970-01-01-00:00:16.442 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.502 3  67 255 126992 System Time:  SID = 5; Source = GPS; Date = 2023.07.04; Time = 20:15:30
+1970-01-01-00:00:16.502 3  67 255 129033 Time & Date:  Date = 2023.07.04; Time = 20:15:30; Local Offset = Unknown
+1970-01-01-00:00:16.565 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.624 2  67 255 127250 Vessel Heading:  SID = Unknown; Heading = 123.4 deg; Deviation = 0.0 deg; Variation = -3.1 deg; Reference = Magnetic
+1970-01-01-00:00:16.683 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.740 2  67 255 127250 Vessel Heading:  SID = Unknown; Heading = 123.4 deg; Deviation = 0.0 deg; Variation = -3.1 deg; Reference = True
+1970-01-01-00:00:16.801 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.859 2  67 255 127250 Vessel Heading:  SID = Unknown; Heading = 123.4 deg; Deviation = 0.0 deg; Variation = -3.1 deg; Reference = Magnetic
+1970-01-01-00:00:16.919 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:16.978 2  67 255 127251 Rate of Turn:  SID = Unknown; Rate = 0.041667 deg/s
+1970-01-01-00:00:17.060 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.117 2  67 255 130306 Wind Data:  SID = Unknown; Wind Speed = 10.20 m/s; Wind Angle = 45.0 deg; Reference = True (ground referenced to North)
+1970-01-01-00:00:17.117 2  67 255 130306 Wind Data:  SID = Unknown; Wind Speed = 10.20 m/s; Wind Angle = 23.0 deg; Reference = Magnetic (ground referenced to Magnetic North)
+1970-01-01-00:00:17.183 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.240 2  67 255 130306 Wind Data:  SID = Unknown; Wind Speed = 5.25 m/s; Wind Angle = 45.0 deg; Reference = Apparent
+1970-01-01-00:00:17.299 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.358 5  67 255 130314 Actual Pressure:  SID = Unknown; Instance = 0; Source = Atmospheric; Pressure = 1.013 bar
+1970-01-01-00:00:17.359 5  67 255 130311 Environmental Parameters:  SID = Unknown; Temperature Source = Sea Temperature; Humidity Source = Outside; Temperature = 22.00 C; Humidity = 80.000 %; Atmospheric Pressure = 1.013 bar
+1970-01-01-00:00:17.359 5  67 255 130311 Environmental Parameters:  SID = Unknown; Temperature Source = Outside Temperature; Humidity Source = Outside; Temperature = 25.00 C; Humidity = 80.000 %; Atmospheric Pressure = 1.013 bar
+1970-01-01-00:00:17.417 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.473 5  67 255 130311 Environmental Parameters:  SID = Unknown; Temperature Source = Sea Temperature; Humidity Source = Outside; Temperature = 22.50 C; Humidity = 80.000 %; Atmospheric Pressure = 1.013 bar
+1970-01-01-00:00:17.474 5  67 255 130311 Environmental Parameters:  SID = Unknown; Temperature Source = Outside Temperature; Humidity Source = Outside; Temperature = 25.00 C; Humidity = 80.000 %; Atmospheric Pressure = 1.013 bar
+1970-01-01-00:00:17.544 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.670 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.731 3  67 255 128267 Water Depth:  SID = Unknown; Depth = 30.50 m; Offset = Unknown; Range = Unknown
+1970-01-01-00:00:17.791 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.910 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:17.967 3  67 255 128267 Water Depth:  SID = Unknown; Depth = 30.50 m; Offset = 0.400 m; Range = Unknown
+1970-01-01-00:00:18.028 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.119 2  67 255 128259 Speed:  SID = Unknown; Speed Water Referenced = 2.83 m/s; Speed Ground Referenced = Unknown; Speed Water Referenced Type = Paddle wheel; Speed Direction = 0
+1970-01-01-00:00:19.181 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.300 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.443 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.503 3  67 255 129283 Cross Track Error:  SID = Unknown; XTE mode = Autonomous; Navigation Terminated = No; XTE = -185.20 m
+1970-01-01-00:00:19.562 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.623 3  67 255 129283 Cross Track Error:  SID = Unknown; XTE mode = Autonomous; Navigation Terminated = No; XTE = 1.22232 km
+1970-01-01-00:00:19.628 6  67 255 129285 Navigation - Route/WP Information:  Start RPS# = 0; nItems = 2; Database ID = 0; Route ID = 0; Navigation direction in route = Unknown; Supplementary Route/WP data available = Off; Route Name = (Route); WP ID 1 = 0; WP Name 1 = DEST; WP Latitude 1 = Unknown; WP Longitude 1 = Unknown; WP ID 2 = 1; WP Name 2 = START; WP Latitude 2 = 48.1173000; WP Longitude 2 = 11.5166666
+1970-01-01-00:00:19.632 3  67 255 129284 Navigation Data:  SID = Unknown; Distance to Waypoint = 926.00 m; Course/Bearing reference = True; Perpendicular Crossed = Yes; Arrival Circle Entered = Yes; Calculation Type = Rhumbline; ETA Time = Unknown; ETA Date = Unknown; Bearing, Origin to Destination Waypoint = Unknown; Bearing, Position to Destination Waypoint = 360.0 deg; Origin Waypoint Number = 0; Destination Waypoint Number = 1; Destination Latitude = 48.1173000; Destination Longitude = 11.5166666; Waypoint Closing Velocity = 0.26 m/s
+1970-01-01-00:00:19.635 3  67 255 129284 Navigation Data:  SID = Unknown; Distance to Waypoint = 926.00 m; Course/Bearing reference = Magnetic; Perpendicular Crossed = Yes; Arrival Circle Entered = Yes; Calculation Type = Rhumbline; ETA Time = Unknown; ETA Date = Unknown; Bearing, Origin to Destination Waypoint = Unknown; Bearing, Position to Destination Waypoint = 3.1 deg; Origin Waypoint Number = 0; Destination Waypoint Number = 1; Destination Latitude = 48.1173000; Destination Longitude = 11.5166666; Waypoint Closing Velocity = 0.26 m/s
+1970-01-01-00:00:19.679 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.796 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:19.914 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.040 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.168 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.227 2  67 255 127245 Rudder:  Instance = 1; Direction Order = No Order; Angle Order = Unknown; Position = 15.0 deg
+1970-01-01-00:00:20.228 2  67 255 127245 Rudder:  Instance = 0; Direction Order = No Order; Angle Order = Unknown; Position = -15.0 deg
+1970-01-01-00:00:20.288 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.347 4  67 255 129038 AIS Class A Position Report:  Message ID = Scheduled Class A position report; Repeat Indicator = Initial; User ID = "244698076"; Longitude = 19.9172333; Latitude = 51.2296366; Position Accuracy = High; RAIM = not in use; Time Stamp = 48; COG = 110.7 deg; SOG = 0.00 m/s; Communication State = 00 00 00; AIS Transceiver information = Channel A VDL reception; Heading = Unknown; Rate of Turn = 0.000 deg/s; Nav Status = Under way using engine; Special Maneuver Indicator = Not available; Sequence ID = Unknown
+1970-01-01-00:00:20.403 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.522 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.640 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:20.759 2  67 255 129025 Position, Rapid Update:  Latitude = 48.1173000; Longitude = 11.5166666
+1970-01-01-00:00:23.099 7  67 255 130074 Route and WP Service - WP List - WP Name & Position:  Start WP ID = 0; nItems = 1; Number of valid WPs in the WP-List = 1; Database ID = 16219; WP ID 1 = 0; WP Name 1 = WAYPOINT; WP Latitude 1 = 48.1173000; WP Longitude 1 = 11.5166666
