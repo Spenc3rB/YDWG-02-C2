@@ -54,11 +54,13 @@ declare -a SENTENCES=(
     "YDDSE,123456789,1,0,,TEST DATA"
 )
 
-for sentence in "${SENTENCES[@]}"; do
-    echo "Sending: $sentence"
-    $SPOOFER --target "$TARGET" --sentence "${sentence}" --type "$PROTO"
-    sleep 0.03
-    # send a GPGLL sentence every 0.03 seconds to delimit the messages, since we know that works
-    $SPOOFER --target "$TARGET" --sentence "GPGLL,4807.038,N,01131.000,E,123519,A" --type "$PROTO"
-    sleep 0.03
+while true; do
+    for sentence in "${SENTENCES[@]}"; do
+        echo "Sending: $sentence"
+        $SPOOFER --target "$TARGET" --sentence "${sentence}" --type "$PROTO"
+        sleep 0.03
+        # send a GPGLL sentence every 0.03 seconds to delimit the messages, since we know that works
+        $SPOOFER --target "$TARGET" --sentence "GPGLL,4807.038,N,01131.000,E,123519,A" --type "$PROTO"
+        sleep 0.03
+    done
 done
