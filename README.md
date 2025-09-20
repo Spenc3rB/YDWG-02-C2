@@ -133,6 +133,483 @@ Checksum: d8 (valid)
 
 > https://github.com/esp8266/esp8266-wiki/wiki/Memory-Map
 
+a string dump of the file gives us the following:
+
+```
+YDWG
+d033e22ae348aeb5660fc2140aec35850c4da997
+2.0.0(5a875ba)
+ @\&!@
+$!@ %!@
+%!@$&!@YD CLOUD: Response:
+ !"#
+ !"#
+%s %u
+DHCP timeout
+@ip_router %d %p
+dhcps_start(): could not obtain pcb
+err in host connected (%s)
+espconn_tcp_delete %d, %d
+RecvHold, By pespconn,find conn_msg fail
+%s %d
+ringbuf_memcpy_from
+ringbuf_memcpy_into
+ringbuf_nextp
+ringbuf_memset
+ringbuf_findchr
+ringbuf_free
+Heap: %ld
+*FAILED*
+** %s
+Flash config restore %s
+HTTP port is: %d
+Reset cause: %d=%s
+exccause=%d epc1=0x%x epc2=0x%x epc3=0x%x excvaddr=0x%x depc=0x%x
+Flash map %s, manuf 0x%02X chip 0x%04X
+** %s: ready, heap=%ld
+Setting max allowed tcp connections: %d
+Maximum allowed connections: %d
+initializing user application
+Waiting for work to do...
+1.74
+/login
+/menu
+/version
+/serial/setserial
+/filters/getfilters
+/filters/setfilter
+/admin/changepassword
+/flash/upload
+/flash/reboot
+/flash/lasterror
+/websocket/nmea.cgi
+/wifi/info
+/wifi/scan
+/wifi/connect
+/wifi/connstatus
+/wifi/setmode
+/wifi/special
+/wifi/apinfo
+/wifi/apchange
+/system/info
+/system/update
+/system/rundiag
+/cloud/reset
+/system/memory
+/nmea_settings/settings
+/nmea_settings/update
+/settings/settings
+/nmea_settings/ydap
+/settings/update
+/settings/upd_ti
+/settings/upd_xdr
+/settings/logging
+/settings/upd_ul
+/settings/upd_dl
+/settings/upd_li
+/settings/run_calibration
+/home.html
+/client.html
+/point.html
+/server.html
+/admin.html
+/flash.html
+/setsn.html
+/filters.html
+false
+true
+Not found
+Found, CAN address %d
+{ "address": "%s", "mode": "%s", "progress": "%d", "limits": "%s", "rudder": "%s", "vessel": "%s", "compass": "%s"}
+{ "server": [
+{ "id": "%d", "type": "%d", "protocol": "%d", "port": "%d", "direction": "%d", "enabled": "%s"}%s
+],"hardware": "1.00"}
+Refreshing settings, try one more time
+{ "interval": "%d", "points" : %d, "priority" : %d, "dataset" : %d, "distance" : "%s", "range" : %d, "key" : "%s", "status" : "%s", "has_points" : "%s"}
+cleandb
+interval
+dataset
+priority
+distance
+XDR settings requested
+{"autopilot":{"ray_autopilot":"%s","wpt_confirm":"%s","rmb_n2k_var":"%s","yd_autopilot":"%s"},"talkerid":"%c%c","windcalc":"%d","xdr":{
+Failed to save config
+ray_autopilot
+wpt_confirm
+rmb_n2k_var
+yd_autopilot
+can_speed
+windcalc
+talker_id
+ns_type0
+ns_protocol0
+ns_port0
+ns_direction0
+ns_enabled0
+ns_type1
+ns_protocol1
+ns_port1
+ns_direction1
+ns_enabled1
+ns_type2
+ns_protocol2
+ns_port2
+ns_direction2
+ns_enabled2
+?sea baro_p baro_b air_t ins_t air_h ins_h exhaust p_boost s_boost p_hours s_hours p_volt s_volt p_temp s_temp p_rate s_rate yaw pitch roll
+Calibration is in progress
+Compass calibration is in progress
+Vessel parameters calibration is in progress
+Rudder calibration is in progress
+Rudder limits calibration is in progress
+Ready
+?HTTP/1.0 200 OK
+Server: YDWG
+Connection: close
+Content-Type: text/plain
+HTTP/1.0 200 OK
+Server: YDWG
+Connection: close
+Content-Type: text/html; charset=UTF-8
+Cache-Control : max-age=30
+keep-alive
+close
+upload.yachtd.com
+/u.php
+POST %s HTTP/1.1
+Host: %s
+Connection: %s
+Content-Type: application/octet-stream
+Content-Transfer-Encoding: Binary
+Content-Length: %d
+Content-Disposition: attachment; filename="00%08X.bin"
+255.255.255.255
+NMEA 0183
+Memory
+Debug
+enabled
+disabled
+NMEA SERVER[%d]: %s, %s, %d, %d, %s
+WSK[0] RX:
+SRV[0] RX:
+N2000:
+</html>
+SRV[0] TX:
+YDCLOUD:
+YD CLOUD: Connected with the server
+YD CLOUD: DNS record for the server is not found
+YD CLOUD: Connecting to %d.%d.%d.%d server...
+YD CLOUD: Connecting (DNS: %d.%d.%d.%d, %d.%d.%d.%d)...
+YD CLOUD: Clean up...
+%sHTTP: conn pool overflow!
+%d.%d.%d.%d:%d
+HTTP/1.0 302 Found
+Server: YDWG
+Connection: close
+Location: %s
+Redirecting to %s
+ERROR
+HTTP/1.0 %d %s
+Server: YDWG
+Connection: close
+Switching Protocols
+HTTP/1.1 %d %s
+Server: YDWG
+%s: %s
+HTTP/1.0 404 Not Found
+Connection: close
+Content-Type: text/plain
+Content-Length: 12
+Not Found.
+%shandler for %s returned invalid result %d
+GET
+POST
+Content-Type:
+multipart/form-data
+boundary=
+Content-Length:
+text/htm
+text/html; charset=UTF-8
+text/css
+text/javascript
+text/plain
+image/jpeg
+image/png
+text/html
+?Accept-Encoding
+Content-Type
+gzip
+Content-Encoding
+max-age=3600, must-revalidate
+Cache-Control
+SLIP: bad CRC, crc=%04x rcv=%04x len=%d
+\%02X
+UART framing error (bad baud rate?)
+UART %d baud
+UART: max cb count exceeded
+cmdGetCbByName: cb %s not found
+wifiCb
+NULL
+SYNC
+WIFI_STATUS
+ADD_CB
+NMEA_GETSERVERS
+NMEA_SEND
+STM_LOG
+STM_SET_TIME
+STM_REQ_WIFIMODE
+STM_GET_SERIAL
+FILTER_GETFILTERS
+CMD_STM_REQ_PING
+CMD_STM_GET_STATISTICS
+CMD_XDR_GET_RESP
+CMD_FLASH_RESP
+CMD_LOGGING_RESP
+CMD_YACHTD_CONNECT
+CMD_YACHTD_DATA
+CMD_YD_AUTOPILOT
+?\Q!@
+?HS!@
+?dQ!@
+Q!@2
+&!@3
+?\.!@F
+?D^!@W
+?``!@j
+?h5!@M
+@no-cache, no-store, must-revalidate
+no-cache
+Pragma
+Expires
+application/json
+Value for %s too long (%d > %d allowed)
+Value for %s out of range
+Invalid value for %s
+{ "menu": [ "Home", "/home.html", "Wi-Fi Client", "/client.html", "Wi-Fi Access Point", "/point.html", "NMEA Server", "/servers.html", "NMEA Filters", "/filters.html", "NMEA Settings", "/settings.html", "Logging", "/logging.html", "Administration", "/admin.html", "Firmware Update", "/flash.html" ], "name": "%s" }
+{ "version": "%s", "sn": "%s", "hardware": "1.00", "build": "%u" }
+session=
+admin
+session
+%s=%s; path=/; expires=Tue, 7 Apr 2038 12:25:10;
+Set-Cookie
+Failed to authenticate
+/login.html
+%s?r=%s
+401 Unauthorized
+%s=%s; path=/; expires=Tue, 7 Apr 2038 12:25:11;
+Failed to change password
+Filters are empty
+{ "filters": [
+{ "server": "%d", "protocol": "%d", "filter": "%d", "type": "%d", "data": "
+server
+protocol
+type
+addr
+Wrong request
+Wrong address
+Refresh
+Refreshing to get data...
+Request error, try to refresh the page
+0x%08X:
+%02X
+Firmware image too large
+Invalid request
+Buffering problem
+Invalid firmware header
+Version of uploaded firmware is less or equal current version
+Diagnostics run
+Content-Length
+DONE
+name
+http_port
+user2.bin
+user1.bin
+{ "name": "%s", "http_port": "%d", "reset cause": "%d=%s", "size": "%s", "upload-size": "%d", "id": "0x%02X 0x%04X", "partition": "%s"  }
+512KB:256/256
+256KB
+1MB:512/512
+2MB:512/512
+4MB:512/512
+2MB:1024/1024
+4MB:1024/1024
+normal
+wdt reset
+exception
+soft wdt
+restart
+deep sleep
+external
+Sec-WebSocket-Key
+258EAFA5-E914-47DA-95CA-C5AB0DC85B11
+websocket
+Upgrade
+upgrade
+Connection
+Sec-WebSocket-Accept
+GET scan: cgiData=%d noAps=%d
+{"essid": "%s", "rssi": %d, "enc": "%d"}%c
+ "result": {
+"inProgress": "1"
+{"result": {"inProgress": "0", "APs": [
+Can not get IP address, mode %d
+Can't associate to an AP en SoftAP mode
+essid
+passwd
+Cannot parse ssid or password
+dhcp
+staticip
+staticnetmask
+staticgateway
+staticdns
+savemode
+Request is missing fields
+Cannot parse static IP config
+{"url": "http://%d.%d.%d.%d"}
+{"url": "http://%s"}
+apply
+{ "ap_ssid": "%s", "ap_password": "%s", "ap_authmode": %d, "ap_maxconn": %d, "ap_beacon": %d, "ap_hidden": "%s"  }
+"mode": "%s", "modechange": "%s", "ssid": "%s", "status": "%s", "phy": "802.%s", "rssi": "%ddB", "warn": "%s",  "apwarn": "%s", "mac":"%02x:%02x:%02x:%02x:%02x:%02x", "chan":"%d", "apssid": "%s", "appass": "%s", "apchan": "%d", "apmaxc": "%d", "aphidd": "%s", "apbeac": "%d", "apauth": "%s","apmac":"%02x:%02x:%02x:%02x:%02x:%02x"
+, "ip": "%d.%d.%d.%d"
+, "netmask": "%d.%d.%d.%d"
+, "gateway": "%d.%d.%d.%d"
+, "hostname": "%s"
+, "ip": "-none-"
+, "staticip": "%d.%d.%d.%d"
+, "staticgateway": "%d.%d.%d.%d"
+, "staticnetmask": "%d.%d.%d.%d"
+, "staticdns": "%d.%d.%d.%d"
+, "dhcp": "%s"
+unspecified
+"reason": "%s",
+"x":0}
+ap_ssid
+ap_password
+SSID not valid or out of range
+Setting AP password len=%d
+ap_authmode
+PASSWORD not valid or out of range
+Forcing AP authmode to WPA_WPA2_PSK
+Setting AP authmode=%d
+ap_maxconn
+ap_channel
+ap_beacon
+ap_hidden
+success
+fail
+STA config---->
+ ssid: %s
+ password: %s
+ bssid_set: %d
+ bssid: %02X:%02X:%02X:%02X:%02X:%02X
+AP config---->
+ ssid: %s
+ password: %s
+ ssid_len: %d
+ channel: %d
+ authmode: %d
+ ssid_hidden: %d
+ max_connection: %d
+ beacon_interval: %d
+WiFi mode: %d
+YDWG
+12345678
+Wifi Soft-AP parameters change: %s
+OPEN
+WPA/PSK
+WPA/WPA2/PSK
+<a href=\"#\" onclick=\"changeWifiMode(2)\">Switch to Access Point mode</a>
+<a href=\"#\" onclick=\"changeWifiMode(3)\">Start Wi-Fi networks scan</a>
+<a href=\"#\" onclick=\"changeWifiMode(2)\">Click to stop</a> Wi-Fi scanning
+Connecting...
+Wrong password
+Network not found
+Failed
+Connected
+Client Mode
+Access Point
+Scan...
+Authentication timeout
+auth_leave
+assoc_expire
+assoc_toomany
+Not authenticated
+not_assoced
+assoc_leave
+assoc_not_authed
+disassoc_pwrcap_bad
+disassoc_supchan_bad
+ie_invalid
+mic_failure
+4way_handshake_timeout
+group_key_update_timeout
+ie_in_4way_differs
+group_cipher_invalid
+pairwise_cipher_invalid
+akmp_invalid
+unsupp_rsn_ie_version
+invalid_rsn_ie_cap
+802.1x authentication failed
+cipher_suite_rejected
+beacon_timeout
+Access Point is not found
+?%06x
+************ESP Flash Config***************
+Sequence: %d
+Magic: 0x%04x
+Crc: 0x%04x
+Hostname: %s
+Http port: %d
+Static ip: %d.%d.%d.%d
+Netmask: %d.%d.%d.%d
+Gateway: %d.%d.%d.%d
+DNS: %d.%d.%d.%d
+Log mode: %d
+Max tcp connections: %d
+*******************************************
+unknown
+************ESP Information***************
+FW: %s, heap=%ld
+Wifi mode: %s
+Status: %s
+PHY: %s
+RSSI: %ddB
+APSSID: %s
+AP Channel: %d
+AP Max connections: %d
+APSSID Hidden: %s
+AP Beacon interval: %d
+AP Auth mode: %s
+AP MAC: %02x:%02x:%02x:%02x:%02x:%02x
+IP: %d.%d.%d.%d
+IP: -none-
+?%02i:%02i:%02i.%03i
+0123456789ABCDEF
++----------+-------+--------+--------+-------+--------+--------+
+|0x%08lx|B %5i|NB %5i|PB %5i|Z %5i|NF %5i|PF %5i|
+|0x%08lx|B %5i|NB %5i|PB %5i|Z %5u|NF %5i|PF %5i|
+|0x%08lx|B %5i|NB %5i|PB %5i|Z %5u|
+Total Entries %5i    Used Entries %5i    Free Entries %5i
+Total Blocks  %5i    Used Blocks  %5i    Free Blocks  %5i
++--------------------------------------------------------------+
+heap integrity broken: too large next free num: %d (in block %d, addr 0x%lx)
+heap integrity broken: free links don't match: %d -> %d, but %d -> %d
+heap integrity broken: too large next block num: %d (in block %d, addr 0x%lx)
+heap integrity broken: mask wrong at addr 0x%lx: n=0x%x, p=0x%x
+heap integrity broken: next block %d is before prev this one (in block %d, addr 0x%lx)
+heap integrity broken: block links don't match: %d -> %d, but %d -> %d
+Heap Corruption!
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/mac
+%02X
+%02x
+VER2
+%6,7,8/7
+RNJD@8
+|8|9|:|;|<|=|x|y|z|{|||}|
+RNJD@8
+YDWG
+12345678
+ESP_DE833A
+```
 ### 1.3 Network Scanning
 
 ```
@@ -526,7 +1003,56 @@ This screenshot is simply [an iframe](assets/web/clickjacked.html).
 
 A copy of the APIs exposed, or at least most of them, are base64 encoded in an XML file [here](./assets/web/site-map).
 
-One noteable API, is the `/flash/reboot` endpoint, which allows us to reboot the device, and is not authenticated. This means that any attacker on the same network can reboot the device, and potentially cause a denial of service attack.
+One noteable API, is the `/flash/reboot` endpoint, which allows us to reboot the device, and is **not authenticated**. This means that any attacker on the same network can reboot the device, and potentially cause a denial of service attack.
+
+strings also gives us a list of the endpoints that are available on the device:
+
+```
+/login
+/menu
+/version
+/serial/setserial
+/filters/getfilters
+/filters/setfilter
+/admin/changepassword
+/flash/upload
+/flash/reboot
+/flash/lasterror
+/websocket/nmea.cgi
+/wifi/info
+/wifi/scan
+/wifi/connect
+/wifi/connstatus
+/wifi/setmode
+/wifi/special
+/wifi/apinfo
+/wifi/apchange
+/system/info
+/system/update
+/system/rundiag
+/cloud/reset
+/system/memory
+/nmea_settings/settings
+/nmea_settings/update
+/settings/settings
+/nmea_settings/ydap
+/settings/update
+/settings/upd_ti
+/settings/upd_xdr
+/settings/logging
+/settings/upd_ul
+/settings/upd_dl
+/settings/upd_li
+/settings/run_calibration
+/home.html
+/client.html
+/point.html
+/server.html
+/admin.html
+/flash.html
+/setsn.html
+/filters.html
+```
 
 ### Cookie Injection
 
@@ -582,9 +1108,12 @@ Since the default port is left on as 1456 for NMEA 0183 and 80 for the HTTP, the
 
 ## 2.5 Web Sockets
 
-Web seockets are enabled by default, and are considered unencrypted as well, and can be MiTM'd with a spoofed replay of the data:
+Web seockets are enabled by default:
 
 ![image of mitm](./assets/imgs/websockets.png)
+
+The Sec-WebSocket-Key
+`258EAFA5-E914-47DA-95CA-C5AB0DC85B11` is hardcoded and used to authenticate the connection, and is not encrypted. This means that any attacker on the same network can easily MiTM the connection, and gain access to the data being sent over the web socket.
 
 ## 2.5 Hashcat
 
