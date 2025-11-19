@@ -1,5 +1,7 @@
 # Penetration Testing of Yacth Devices NMEA 2000 Wifi Gateway and Processes
 
+> Note: This repo uses git lfs for large files, make sure to have it installed: https://git-lfs.com/
+
 ## 1. Reconnaissance
 
 ### 1.1 Physical Hardware
