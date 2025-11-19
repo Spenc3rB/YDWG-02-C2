@@ -54,7 +54,7 @@ test mode,
 enhance boot mode, 
 jump to run user
 error user bin flag, flag = %x
-,E8"-
+,E8"-0x0
 L8,	
 4Bm5
 f `D I

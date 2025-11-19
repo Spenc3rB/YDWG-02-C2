@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TARGET="192.168.4.1:1456"
-PROTO="tcp"
+TARGET="192.168.0.69:1456"
+PROTO="udp"
 SPOOFER="./nmea0183spoofer.py"
 
 declare -a SENTENCES=(

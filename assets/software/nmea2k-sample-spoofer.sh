@@ -2,5 +2,5 @@
 # proven to work with Simrad NR12 MFD
 while true; do
     # spoof garmin messages
-    ./nmea2kspoofer.py --file logs/candump-sample-gnss.log --proto tcp
+    ./nmea2kspoofer.py --file logs/candump-sample-gnss.log --proto udp --ip 192.168.0.69 --port 1457
 done
