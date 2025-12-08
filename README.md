@@ -40,6 +40,8 @@
 
 > Note: This repo uses git lfs for large files, make sure to have it installed: https://git-lfs.com/
 
+> Note: This research was conducted in partial completion of the Systems Engineering Cybersecurity Courses (SYSE-548, SYSE-569) and the Systems Engineering M.S. degree at [Colorado State University](https://www.colostate.edu/). Please see [misc](./assets/misc/) for related course work.
+
 ## 0. Background, Objective, and Reconnaissance
 
 ### 0.1 National Marine Electronics Association
