@@ -1,9 +1,6 @@
-# Wrapper Mitigations for YachtDestroy Vulnerability
+# Wrapper Mitigations for YachtDestroy Vulnerabilities
 
-> Note: WIP.
-> TODO: Make an all in one script to set this up automatically.
-
-This directory contains configuration files and instructions to help mitigate the YachtDestroy vulnerability by setting up a secure reverse proxy using Nginx. The reverse proxy will handle incoming requests and forward them to the appropriate backend services while enforcing HTTPS and proper routing.
+This directory contains configuration files and instructions to help mitigate the YachtDestroy vulnerabilities by setting up a secure reverse proxy using Nginx. The reverse proxy will handle incoming requests and forward them to the appropriate backend services while enforcing HTTPS and proper routing.
 
 # 1. Generate SSL Certificates
 

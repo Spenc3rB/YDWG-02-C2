@@ -1,0 +1,153 @@
+16:29:52 : STM32CubeProgrammer API v2.21.0 | Windows-64Bits 
+16:45:27 : UR connection mode is defined with the HWrst reset mode
+16:45:27 : 260112055
+16:45:27 : Device=Cortex-M3
+16:45:27 : Device ID   : 0x418
+16:45:27 : Voltage     : 3.32V
+16:45:28 : UPLOADING OPTION BYTES DATA ...
+16:45:28 :   Bank          : 0x00
+16:45:28 :   Address       : 0x4002201c 
+16:45:28 :   Size          : 8 Bytes
+16:45:28 :   Bank          : 0x01
+16:45:28 :   Address       : 0x1ffff800 
+16:45:28 :   Size          : 16 Bytes
+16:45:28 : UPLOADING ...
+16:45:28 :   Size          : 1024 Bytes
+16:45:28 :   Address       : 0x8000000
+16:45:28 : Read progress:
+16:45:28 : Error: Data read failed
+16:47:16:938 : UPLOADING ...
+16:47:16:940 :   Size          : 262144 Bytes
+16:47:16:940 :   Address       : 0x8000000
+16:47:16:941 : Read progress:
+16:47:16:941 : Reading data...
+16:47:17:046 : Error: Data read failed
+16:47:17:327 : UPLOADING ...
+16:47:17:328 :   Size          : 262144 Bytes
+16:47:17:328 :   Address       : 0x8000000
+16:47:17:329 : Read progress:
+16:47:17:332 : Reading data...
+16:47:17:339 : Error: Data read failed
+16:49:09:868 : Option byte command : -ob RDP=0xBB RDP=0xA5 
+16:49:09:874 : qCmd : -ob RDP=0xBB RDP=0xA5 
+16:49:09:875 : PROGRAMMING OPTION BYTES AREA ...
+16:49:09:876 : Warning: RDP=165 will be ignored as it has already been modified.
+16:49:09:956 :   Bank          : 0x01
+16:49:09:957 :   Address       : 0x1ffff800 
+16:49:09:958 :   Size          : 16 Bytes
+16:49:09:967 : OB buffer: bb000000000000000000000000000000
+16:49:09:972 : Buffer program...
+16:49:09:983 : Loader write option bytes...
+16:49:09:985 : Init flashloader...
+16:49:39:020 : WriteOB function terminated with timeout due to OB_Launch
+16:49:39:024 : UPLOADING OPTION BYTES DATA ...
+16:49:39:025 :   Bank          : 0x00
+16:49:39:025 :   Address       : 0x4002201c 
+16:49:39:026 :   Size          : 8 Bytes
+16:49:39:026 : Reading data...
+16:49:39:027 :   Bank          : 0x01
+16:49:39:027 :   Address       : 0x1ffff800 
+16:49:39:027 :   Size          : 16 Bytes
+16:49:39:031 : Reading data...
+16:49:39:106 : Uploading Option Bytes bank: 1 failed (maybe due to area protection), allocating empty buffer instead
+16:49:39:108 : OPTION BYTE PROGRAMMING VERIFICATION:
+16:49:39:109 : Option Bytes successfully programmed
+16:49:39:170 : Time elapsed during option Bytes configuration: 00:00:29.233
+16:49:39:410 : UPLOADING OPTION BYTES DATA ...
+16:49:39:416 :   Bank          : 0x00
+16:49:39:418 :   Address       : 0x4002201c 
+16:49:39:419 :   Size          : 8 Bytes
+16:49:39:419 : Reading data...
+16:49:39:421 :   Bank          : 0x01
+16:49:39:421 :   Address       : 0x1ffff800 
+16:49:39:421 :   Size          : 16 Bytes
+16:49:39:422 : Reading data...
+16:49:39:422 : Uploading Option Bytes bank: 1 failed (maybe due to area protection), allocating empty buffer instead
+16:49:50:937 : UPLOADING ...
+16:49:50:937 :   Size          : 262144 Bytes
+16:49:50:938 :   Address       : 0x8000000
+16:49:50:938 : Read progress:
+16:49:50:938 : Reading data...
+16:49:51:162 : Error: Data read failed
+16:49:56:193 : UPLOADING ...
+16:49:56:195 :   Size          : 262144 Bytes
+16:49:56:195 :   Address       : 0x8000000
+16:49:56:195 : Read progress:
+16:49:56:197 : Reading data...
+16:49:56:413 : Error: Data read failed
+16:50:24:934 : UPLOADING OPTION BYTES DATA ...
+16:50:24:935 :   Bank          : 0x00
+16:50:24:935 :   Address       : 0x4002201c 
+16:50:24:936 :   Size          : 8 Bytes
+16:50:24:936 : Reading data...
+16:50:24:938 :   Bank          : 0x01
+16:50:24:938 :   Address       : 0x1ffff800 
+16:50:24:938 :   Size          : 16 Bytes
+16:50:24:939 : Reading data...
+16:50:25:023 : Uploading Option Bytes bank: 1 failed (maybe due to area protection), allocating empty buffer instead
+16:51:29:446 : Option byte command : -ob RDP=0xA5 
+16:51:29:454 : qCmd : -ob RDP=0xA5 
+16:51:29:454 : PROGRAMMING OPTION BYTES AREA ...
+16:51:29:455 :   Bank          : 0x01
+16:51:29:455 :   Address       : 0x1ffff800 
+16:51:29:456 :   Size          : 16 Bytes
+16:51:29:457 : OB buffer: a5000000000000000000000000000000
+16:51:29:457 : Buffer program...
+16:51:29:468 : Loader write option bytes...
+16:51:29:469 : Init flashloader...
+16:51:29:525 : UPLOADING OPTION BYTES DATA ...
+16:51:29:526 :   Bank          : 0x00
+16:51:29:526 :   Address       : 0x4002201c 
+16:51:29:526 :   Size          : 8 Bytes
+16:51:29:526 : Reading data...
+16:51:29:527 :   Bank          : 0x01
+16:51:29:527 :   Address       : 0x1ffff800 
+16:51:29:528 :   Size          : 16 Bytes
+16:51:29:528 : Reading data...
+16:51:29:529 : OPTION BYTE PROGRAMMING VERIFICATION:
+16:51:29:529 : Option Bytes successfully programmed
+16:51:29:598 : Time elapsed during option Bytes configuration: 00:00:00.078
+16:51:29:740 : UPLOADING OPTION BYTES DATA ...
+16:51:29:747 :   Bank          : 0x00
+16:51:29:749 :   Address       : 0x4002201c 
+16:51:29:749 :   Size          : 8 Bytes
+16:51:29:750 : Reading data...
+16:51:29:750 :   Bank          : 0x01
+16:51:29:750 :   Address       : 0x1ffff800 
+16:51:29:750 :   Size          : 16 Bytes
+16:51:29:752 : Reading data...
+16:51:39:754 : UPLOADING ...
+16:51:39:755 :   Size          : 262144 Bytes
+16:51:39:755 :   Address       : 0x8000000
+16:51:39:756 : Read progress:
+16:51:39:757 : Reading data...
+16:51:40:834 : Data read successfully
+16:51:40:835 : Time elapsed during the read operation is: 00:00:01.090
+16:52:23:052 : Warning: Connection to device 0x418 is lost
+16:52:23:721 : Disconnected from device.
+16:54:33:937 : Disconnected from device.
+16:54:40:060 : UR connection mode is defined with the HWrst reset mode
+16:54:40:088 : 260112055
+16:54:40:092 : Device=Cortex-M3
+16:54:40:102 : Device ID   : 0x418
+16:54:40:107 : Voltage     : 3.32V
+16:54:40:114 : flash loader C:\Program Files\STMicroelectronics\STM32Cube\STM32CubeProgrammer\bin/FlashLoader/0x418.stldr is loaded
+16:54:40:346 : Reading data...
+16:54:40:354 : UPLOADING OPTION BYTES DATA ...
+16:54:40:362 :   Bank          : 0x00
+16:54:40:368 :   Address       : 0x4002201c 
+16:54:40:370 :   Size          : 8 Bytes
+16:54:40:375 : Reading data...
+16:54:40:380 :   Bank          : 0x01
+16:54:40:380 :   Address       : 0x1ffff800 
+16:54:40:380 :   Size          : 16 Bytes
+16:54:40:382 : Reading data...
+16:54:46:756 : UPLOADING ...
+16:54:46:758 :   Size          : 262144 Bytes
+16:54:46:762 :   Address       : 0x8000000
+16:54:46:765 : Read progress:
+16:54:46:766 : Reading data...
+16:54:47:815 : Data read successfully
+16:54:47:816 : Time elapsed during the read operation is: 00:00:01.084
+17:16:58:309 : Warning: Connection to device 0x418 is lost
+17:16:59:224 : Disconnected from device.

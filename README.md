@@ -1,8 +1,104 @@
-# Penetration Testing of Yacth Devices NMEA 2000 Wifi Gateway and Processes
+# Penetration Testing and Reverse Engineering of [Yacht Devices](https://www.yachtd.com/) NMEA 2000 Wifi Gateway
+
+## Table of Contents
+- [Penetration Testing and Reverse Engineering of Yacht Devices NMEA 2000 Wifi Gateway](#penetration-testing-and-reverse-engineering-of-yacht-devices-nmea-2000-wifi-gateway)
+  - [Table of Contents](#table-of-contents)
+  - [0. Background, Objective, and Reconnaissance](#0-background-objective-and-reconnaissance)
+    - [0.1 National Marine Electronics Association](#01-national-marine-electronics-association)
+    - [0.2 Marine Gateways](#02-marine-gateways)
+    - [0.3 Objective](#03-objective)
+    - [0.4 YDWG-02: The Wireless Gateway to Remote Control of Marine Systems](#04-ydwg-02-the-wireless-gateway-to-remote-control-of-marine-systems)
+  - [1.4.1 Reconnaissance and Open Source Intelligence](#141-reconnaissance-and-open-source-intelligence)
+  - [1. Reverse Engineering and Penetration Testing](#1-reverse-engineering-and-penetration-testing)
+    - [1.1 Physical Hardware](#11-physical-hardware)
+    - [1.2 Firmware Analysis](#12-firmware-analysis)
+      - [1.2.1 Update File](#121-update-file)
+    - [1.2.2 Attempt at Dumping the STM32 Firmware](#122-attempt-at-dumping-the-stm32-firmware)
+      - [1.2.3 Attempt at Dumping the ESP8285 Firmware](#123-attempt-at-dumping-the-esp8285-firmware)
+    - [1.2.4 Dumping the firmware](#124-dumping-the-firmware)
+    - [1.3 Network Scanning](#13-network-scanning)
+  - [2. Exploitation and Vulnerabilities](#2-exploitation-and-vulnerabilities)
+    - [2.1 NMEA 0183 Spoofing](#21-nmea-0183-spoofing)
+  - [2.2 NMEA 2000 Spoofing](#22-nmea-2000-spoofing)
+    - [2.3 Web Application Analysis](#23-web-application-analysis)
+      - [2.3.1 Burp Suite](#231-burp-suite)
+      - [2.3.1.1 Authentication Bypass](#2311-authentication-bypass)
+      - [2.3.1.2 Sniffing Access Point Credentials](#2312-sniffing-access-point-credentials)
+      - [Cloud Application](#cloud-application)
+    - [2.3.2 OWASP ZAP](#232-owasp-zap)
+      - [2.2.2.1 XSS Vulnerability](#2221-xss-vulnerability)
+      - [2.2.2.2 Clickjacking Vulnerability](#2222-clickjacking-vulnerability)
+      - [2.2.2.3 API Vulnerabilities](#2223-api-vulnerabilities)
+    - [2.3.3 Cookie Injection](#233-cookie-injection)
+  - [2.4 TCP connection exaustion attacks (SYN flood)](#24-tcp-connection-exaustion-attacks-syn-flood)
+  - [2.5 Web Sockets](#25-web-sockets)
+  - [3 Summary](#3-summary)
+    - [3.1 Attack Path (CAPECs)](#31-attack-path-capecs)
+    - [3.2 Weakness Enumeration (CWEs)](#32-weakness-enumeration-cwes)
+  - [5. Mitigations and Recommendations](#5-mitigations-and-recommendations)
+- [FAQ](#faq)
 
 > Note: This repo uses git lfs for large files, make sure to have it installed: https://git-lfs.com/
 
-## 1. Reconnaissance
+## 0. Background, Objective, and Reconnaissance
+
+### 0.1 National Marine Electronics Association
+
+The National Marine Electronics Association (NMEA) has developed standards for the communication subsystems of boats, including:
+
+1. A legacy serial data standard (RS-422/RS-232) for one-talker, many-listener systems, using ASCII “sentences” (e.g., GPS, AIS, autopilots) [[NMEA 0183](https://www.nmea.org/nmea-0183.html)].
+2. A CAN-bus-based marine network standard (multi-talker/listener) using binary messages (PGNs) for instrumentation, engines, and navigation systems [[NMEA 2000](https://www.nmea.org/nmea-2000.html)].
+3. An Ethernet/IPv6-based next-generation standard designed for high-bandwidth marine systems (video, radar, large sensor networks), compatible with earlier NMEA standards via gateways [[NMEA OneNet](https://www.nmea.org/nmea-onenet.html)].
+
+### 0.2 Marine Gateways
+
+In the marine vessel systems context, a gateway is a device (or module) that allows two (or more) different data networks or protocols to communicate onboard a boat or ship. It “translates” or bridges between legacy and modern systems so data from sensors, instruments, engines, etc., can be integrated and shared. For example, a legacy instrument using one protocol might need to feed data into a network that uses a newer standard.
+
+Such gateways are increasingly important because marine vessels often have a mix of equipment (navigation, engine, sensors, legacy/old and new) and standards evolve over time.
+
+A few examples on the market at the time of this study include:
+
+1. The [NGX-1](https://actisense.com/products/nmea-2000-gateway-ngx-1/) from Actisense, which features conversions from NMEA 2000, 0183, and a PC interface.  
+2. The [YDWN-02](https://www.yachtd.com/products/wifi_0183_gateway.html) WiFi Gateway, which features NMEA 0183 to a PC interface.  
+3. The [Maretron J2K100](https://www.maretron.com/products/j2k100-j1939-to-nmea-2000-gateway/), which includes support for converting medium-to-heavy-duty protocols such as SAE J1939 to NMEA 2000.
+
+### 0.3 Objective
+
+With the background on NMEA standards and the role of marine gateways established, the objective of this study is to reconstruct and verify a marine gateway’s structure, behavior, and security properties. Because vessels often mix older and newer systems, and the standards continue to evolve, this work also aims to clarify how gateways function today and provide a starting point for developing improved marine Internet-of-Things (IoT) systems.
+
+Studies examining shipboard wireless networks have demonstrated that poorly configured or unsegmented wireless gateways can be exploited through rogue access points, man-in-the-middle attacks, and interception of crew or onboard device traffic. These findings highlight that vulnerabilities often arise not from exotic zero-day flaws but from weak authentication, default credentials, outdated firmware, and insecure bridging between IT and OT domains. However, what these studies fail to highlight is a real-world cyber-physical gateway, from the IT domain to the OT domain. This study increases the confidence in these findings by applying real-world threat and mitigation approaches.
+
+### 0.4 [YDWG-02](https://www.yachtd.com/products/wifi_gateway.html): The Wireless Gateway to Remote Control of Marine Systems
+
+The system of interest for this case study is a marine wireless gateway: a thumb-sized device that bridges NMEA 2000, NMEA 0183, and RAW protocol streams over 2.4 GHz Wi-Fi. It enables bidirectional data flow between onboard sensors and tablets, supporting applications such as OpenCPN, Navionics, and Signal K. The gateway can also interface with Raymarine SeaTalk NG autopilot computers, offering both data visualization and control. This gateway is the YDWG-02.
+
+The manufacturer reported rapid growth since its founding in 2014. By late 2017, the company noted a 500% increase in sales over 2016. In 2018 they announced they had sold 3× more units than in 2017 and expanded to a network of about 40 dealers worldwide. Even during the pandemic and semiconductor shortages, demand grew: sales in 2021 were 26% higher than 2020 and 44% higher than 2019. Although exact unit counts were not disclosed, these growth rates imply a substantial user base. If sales were in the low hundreds in 2016, a 5× jump by 2017 and 3× by 2018 would put annual units in the thousands by 2018. With continued double-digit growth through 2021, it is reasonable to estimate total YDWG-02 devices in circulation in the high thousands (possibly approaching the low tens of thousands) globally by the mid-2020s, though exact figures remain proprietary. The company’s year-end reports also mention OEM projects and use by charter or fleet companies, implying these devices are not only DIY aftermarket gadgets but are finding their way into professional deployments on commercial or rental vessels as well [https://www.yachtd.com/news/].
+
+Its operational domain includes small to medium recreational and commercial vessels, many of which integrate this device for navigation, telemetry, and cloud-based tracking. Despite its growing market share since 2014, several legacy security and documentation shortcomings persist, particularly the use of default passwords, the absence of encryption in transit, and broken access control. Its relevance lies in that it is both an IoT node and a safety-critical control point. It presents an accessible and verifiable test platform in that it uses off-the-shelf components and provides observable network behaviors through Wi-Fi and CAN-based marine buses.
+
+## 1.4.1 Reconnaissance and Open Source Intelligence
+
+Information was gathered from multiple open and technical resources. To start, the device included a vendor-supplied user manual published on the manufacturer website, which documents device operation, Wi-Fi defaults, server ports, RAW protocol format, and the firmware update procedure (WUPDATE.BIN). The manual’s Appendix E explicitly describes the RAW message format used to convey NMEA-2000 frames over TCP/UDP, and several sections give the default network configuration (SSID “YDWG”, default password “12345678”, web UI at http://192.168.4.1, and default NMEA server port 1456) which were essential to reproducing normal operation and test setups.
+
+Beyond the manual, community forums, developer notes, and open-source tooling documentation provided practical guidance for firmware extraction and protocol decoding; these sources also surfaced real-world use cases for the gateway and common misconfiguration patterns [https://forums.sailboatowners.com/threads/latest-on-nmea-to-wifi.1249937655/]. Internet footprinting (Shodan) [queries](https://www.shodan.io/search?query=ydwg) located instances of the gateway accessible on the public Internet, confirming that factory configuration and exposed services are not purely theoretical attack vectors.
+
+![shodan](./assets/imgs/shodan.png)
+
+http://76.14.134.193/login.html
+
+![login from shodan](./assets/imgs/login-from-shodan.png)
+
+http://76.14.134.193/g.html
+
+![web gauges from shodan](./assets/imgs/web-gauges-from-shodan.png)
+
+![coordinates from shodan](./assets/imgs/cordinates-from-shodan.png)
+
+> Note: this research is in an effort to SECURE these gateways, not to exploit them. The above screenshots are provided for educational purposes only. The actual coordinates of the screenshots indicate this vessel may not be in the water at the time of capture, but it's important to note the privacy concern.
+
+Part of the reconnaissance phase includes understanding (as closely as possible) normal operation. Given the manufacturer provided the manual for the device, it was straightforward to deduce the expected default network and protocol behaviors (Access Point mode vs. Client mode, server port assignments, RAW/NMEA mapping rules, and logging/diagnostics endpoints).
+
+## 1. Reverse Engineering and Penetration Testing
 
 ### 1.1 Physical Hardware
 
@@ -17,6 +113,8 @@ Back Side
 After taking a look at the front side of the PCB, we can see that the device is using an [STM32F105RBT6](./assets/pdfs/en.CD00220364.pdf).
 
 ### 1.2 Firmware Analysis
+
+#### 1.2.1 Update File
 
 File: [WUPDATE.BIN](./assets/WUPDATE/WUPDATE.BIN) comes from v1.72 of the firmware, and is the update file for the device, publicly available on the manufacturer's website.
 
@@ -61,25 +159,19 @@ Even over the WiFi update process, the firmware still seems encrypted or compres
 
 ![entropy](./assets/imgs/entropy.png)
 
-### 1.2.1 Attempt at Dumping the STM32 Firmware
+> Note: this research is still ongoing, and attempts to understand the update mechanisms are still in progress. As of righting this, the devices seems to SLIP (serial line internet protocol) update packets from the ESP8266 (serving the web portal), to the STM32F (the main controller).
 
-Unfortunately, LQFP64 line is small, and soldering 30 AWG wire to the pads is hard (see below). 
+### 1.2.2 Attempt at Dumping the STM32 Firmware
 
-![stm32-30awg](./assets/imgs/30%20AWG.jpg)
+There are SWD test pads that can be seen on the device:
 
-After many failed attempts of JTAGulating and resoldering, I decided to check the output of the device on boot:
+![swd test pads](./assets/imgs/frontside.jpg)
 
-![salea capture](./assets/imgs/salea.png)
+The chip success fully connected to a computer when using the [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html); however, the manufacturers had set readout proctection on the STM32. If an attempt was made to read the firmware, it would be blocked, and if an attempt to change the RDP bit was set, it would wipe the memory of the STM32. You can see the log that made me cry [here](./assets/re/attempt-at-dumping-firmware-stm32.log).
 
-This proves further that JTAG must've been disabled in the firmware, as there is no TCK (yellow), TDI is pulled high (green), TDO has no output (orange), NJTRST is pulled high (red). 
+#### 1.2.3 Attempt at Dumping the ESP8285 Firmware
 
-> Note: TMS is absent in this capture.
-
-Even after pulling nJTRST low, the device still doesn't output anything on TDO. This means that JTAG is disabled somehow, because I am wired directly up to the microchip:
-
-![salea pulled low](./assets/imgs/salea-pull-low.png)
-
-#### ... let's move to the ESP8285, since we know it is the chip that is used for updates, and user interaction:
+Was a success!
 
 Found boot logs after performing a chip off, with the following pins connected:
 ESP8285 Pin | Serial Adapter
@@ -91,13 +183,15 @@ RXD | TX
 GPIO0 | GND (for bootloader mode)
 EN (RST) | 3.3V (pulled-up)
 
+> Note: more detail about the specific chip can be found in the [ESP8285 datasheet](./assets/pdfs/0a-esp8285_datasheet_en.pdf) or the [ESP-M2 datasheet](./assets/pdfs/3413969-user-manual.pdf).
+
 ![bootlogs](./assets/imgs/bootlogs.png)
 
 And after that, I got to enabling the bootloader mode, and dumping the firmware:
 
 ![esptool-windows](./assets/imgs/esptool-windows.png)
 
-### 1.2.2 Actually dumping the firmware
+### 1.2.4 Dumping the firmware
 
 The command in the image above didn't get me far, until I did the following:
 
@@ -109,14 +203,7 @@ esptool.py -p PORT -b 115200 read_flash 0 ALL flash_contents.bin
 
 A copy of the firmware is available at [./assets/re/flash_contents.bin](./assets/re/flash_contents.bin).
 
-But that doesn't render well in ghidra, so I used the following tool to convert it to an ELF file:
-
-```
-esp2elf flash_contents.bin flash_contents.elf
-```
-
-Hell yeah! Now ghidra can confirm the entry point we already figured out from using the esptool:
-
+Then I ran this command to get information about the firmware:
 ```
 esptool image_info flash_contents.bin
 
@@ -133,9 +220,16 @@ Segment 3: len 0x00278 load 0x3ffe8310 file_offs 0x00000c88 [DRAM]
 Checksum: d8 (valid)
 ```
 
-> https://github.com/esp8266/esp8266-wiki/wiki/Memory-Map
+> This link provides information about the memory map of the ESP8266: https://github.com/esp8266/esp8266-wiki/wiki/Memory-Map
 
-a string dump of the file gives us the following:
+[Someone already wrote a python2.7 to extract the memory locations from the ESP8266 firmware](./assets/re/esp8266_parser_v1.py) so that we can plug the memory map into ghidra:
+
+```bash
+python2.7 esp8266_parser_v1.py flash_contents.bin > flash_contents.mem
+```
+To view the memory map of this device, see [./assets/re/flash_contents.mem](./assets/re/flash_contents.mem).
+
+A string dump of the file gives us the following (which as also available at [./assets/re/flash_contents.strings](./assets/re/flash_contents.strings)):
 
 ```
 YDWG
@@ -612,6 +706,11 @@ YDWG
 12345678
 ESP_DE833A
 ```
+
+This gives us a lot of information about the device, including the version number, the default password, and the web interface endpoints... our next step is to try to connect to the device, and see if we can get any data out of it.
+
+---
+
 ### 1.3 Network Scanning
 
 ```
@@ -660,7 +759,9 @@ $MXPGN,01F211,686F,00475D64070000FF*1C
 
 If the user has set this port as bidirectional (TX/RX), we can even send data to the device, and after it receives the data, it will send it out on the N2K bus. 
 
-## 2. Exploitation
+> Note: in order to command an autopilot, the user must set the port to bidirectional.
+
+## 2. Exploitation and Vulnerabilities
 
 ### 2.1 NMEA 0183 Spoofing
 
@@ -693,6 +794,8 @@ We just spoofed an AIS message from setting the port (1456) to bidirectional N2K
 If the user also turns on bidirectional communication on the n2k bus. This means we can send any arbitrary message to the bus, given the source address of the YDWG-02. 
 
 As a reminder, these ports are **NOT encrypted, or authenticated in any form**. This means that any attacker with access to the network can send arbitrary messages to the bus, and potentially spoof the devices on the bus (which was proven from the [nmea2k-compass-spoofer.sh](./assets/software/nmea2k-compass-spoofer.sh) file).
+
+---
 
 ### 2.3 Web Application Analysis
 
@@ -1005,9 +1108,9 @@ This screenshot is simply [an iframe](assets/web/clickjacked.html).
 
 A copy of the APIs exposed, or at least most of them, are base64 encoded in an XML file [here](./assets/web/site-map).
 
-One noteable API, is the `/flash/reboot` endpoint, which allows us to reboot the device, and is **not authenticated**. This means that any attacker on the same network can reboot the device, and potentially cause a denial of service attack.
+> Note: The `/flash/reboot` endpoint, allows an attacker to remotely reboot the device, causing a denial of service attack. Other endpoints could also be used to change settings on the device, or exfiltrate data. The `/system/rundiag`, allows an attacker to run diagnostics on the marine system, possibly exfiltrating sensitive data. The `/settings/update` or `/settings/run_calibration` endpoint actually bricks the device; meaning everytime this endpoint was hit, I had to hard reset the device. These are only some of the endpoints tested that could be abused by an attacker.
 
-strings also gives us a list of the endpoints that are available on the device:
+Strings also gives us a list of the endpoints that are available on the device:
 
 ```
 /login
@@ -1056,7 +1159,7 @@ strings also gives us a list of the endpoints that are available on the device:
 /filters.html
 ```
 
-### Cookie Injection
+### 2.3.3 Cookie Injection
 
 The cookies used by the device are not signed, and are used to authenticate the user. This means that we can easily inject a cookie into the request, and gain access to the device. This is just another way we can bypass the authentication, given the use of hashcat to crack the SHA1 hashed password.
 
@@ -1115,33 +1218,75 @@ Web seockets are enabled by default:
 ![image of mitm](./assets/imgs/websockets.png)
 
 The Sec-WebSocket-Key
-`258EAFA5-E914-47DA-95CA-C5AB0DC85B11` is hardcoded and used to authenticate the connection, and is not encrypted. This means that any attacker on the same network can easily MiTM the connection, and gain access to the data being sent over the web socket.
+`258EAFA5-E914-47DA-95CA-C5AB0DC85B11` is hardcoded and used to authenticate the connection, and is not encrypted.
 
-## 2.5 Hashcat
+---
 
-TODO: show hashcat cracking the password.
+## 3 Summary
 
-# 3. Lateral Movement TODO
+### 3.1 Attack Path (CAPECs)
 
-To automate these processes, a script was created to check for the AP static IP address (192.168.4.1), or the user can manually enter the IP address of the device. If the device is in AP mode, it tries to connect to the AP with the default password (123456578), otherwise it performs a deuath and tries to crack the hash. Once the script has entered the same network as the device, it scans for ports. If port 80 is active, it tries to authenticate with the web application using the default credentials (admin:admin). If the default port 1456 is active, it sends messages shown in the nmea0183-demo.sh script. If any other ports are found open (given a use supplied range to check via nmap), the script then listens for valid NMEA 2K, or 0183 traffic (these can be bidirectionally set up; hence they are targeted). Then, if the default credentials do not work, it sets up a listner on the linux device to capture the traffic. If it detects passwords, or other key words, it will alert the user. 
+An attack path example could be as follows:
+1. The attacker scans for the device in AP mode
+2. If the device is in AP mode:
+   1. The attacker connects to the AP using the default password (123456578)
+      1. If the default password does not work, the attacker performs a deauth attack, and captures the WPA2 handshake, and cracks the hash using hashcat
+3. If the device is in Client mode:
+   1. The attacker needs to have access to the same network as the device, or may perform a similar deauth attack
+4. The attacker sets up a passive listener on the LAN, and waits for sensitive data to be sent in cleartext (credentials, etc.)
+5. The attacker scans for open ports on the device (80, 1456, etc.).
+6. If the web application port (80) is open (could be a different port if the user changed it):
+   1. The attacker tries to authenticate to the web application using the default credentials (admin:admin)
+   2. If the default credentials do not work, the attacker captures the traffic, and looks for credentials being sent in cleartext
+7. If any NMEA ports are open (1456, etc.):
+   1. The attacker listens for NMEA 0183 or NMEA 2000 traffic
+   2. Exfiltrates sensitive data (positioning, gps data, navigation info, wind and weather, heading and compass, AIS target info, etc.)
+8. The attacker changes the NMEA port to bidirectional and sends spoofed messages to the device (i.e., spoofing AIS messages to the MFD, sending commands to the autopilot, etc.)
 
-There are four modes of operation for the script:
-```bash
-./yachtDestroy --deauth
-./yachtDestroy --deny
-./yachtDestroy --inject
-./yachtDestroy --enumerate
-```
+### 3.2 Weakness Enumeration (CWEs)
 
-It is recommend to run the deauth script first. 
+The following CWEs were found to have more hits on environmental impacts (i.e., more
+requirements covered): 
+1. CWE-1428: Reliance on HTTP instead of HTTPS 
+2. CWE-1391: Use of Weak Credentials
+3. CWE-306: Missing Authentication for Critical Function. 
+  
+After classifying these weaknesses as critical failure points in the security of the YDWG-02, further evaluation
+performed on the device proved that each of these threat interfaces (i.e., CWEs) confirmed to be
+vulnerabilities and could be exploited to remotely control the operation of a marine vessel. 
 
-# 4. What makes this dangerous?
+A current list of "allowed" CWEs found is in the table below:
+| CWE ID  | Name                                      | Trace to YDWG                  |
+|---------|-------------------------------------------|--------------------------------|
+| [CWE-1428](https://cwe.mitre.org/data/definitions/1428.html) | Reliance on HTTP instead of HTTPS         | ESP8285: Web Application                |
+| [CWE-1391](https://cwe.mitre.org/data/definitions/1391.html) | Use of Weak Credentials                   | ESP8285: WiFi Access Point, Web Application |
+| [CWE-306](https://cwe.mitre.org/data/definitions/306.html) | Missing Authentication for Critical Function | ESP8285: NMEA Servers              |
+| [CWE-79](https://cwe.mitre.org/data/definitions/79.html)  | Cross-Site Scripting (XSS)                | ESP8285: Web Application                |
+| [CWE-352](https://cwe.mitre.org/data/definitions/352.html) | Cross-Site Request Forgery (CSRF)         | ESP8285: Web Application                |
+| [CWE-405](https://cwe.mitre.org/data/definitions/405.html) | Asymmetric Resource Consumption (Amplification)             | ESP8285: TCP Ports                      |
+| [CWE-521](https://cwe.mitre.org/data/definitions/521.html) | Weak Password Requirements                | ESP8285: WiFi Access Point, Web Application |
+| [CWE-798](https://cwe.mitre.org/data/definitions/798.html) | Use of Hard-coded Credentials           | ESP8285: Firmware Dump                |
+| [CWE-319](https://cwe.mitre.org/data/definitions/319.html) | Cleartext Transmission of Sensitive Information | ESP8285: WiFi Access Point, Web Application, NMEA Servers |
+| [CWE-565](https://cwe.mitre.org/data/definitions/565.html) | Reliance on Cookies without Validation or Integrity Checking | ESP8285: Web Application                |
+| [CWE-862](https://cwe.mitre.org/data/definitions/862.html) | Missing Authorization                         | ESP8285: NMEA Servers                |
+| [CWE-250](https://cwe.mitre.org/data/definitions/250.html) | Execution with Unnecessary Privileges        | ESP8285: NMEA Servers |
+| [CWE-1021](https://cwe.mitre.org/data/definitions/1021.html) | Improper Restriction of Rendered UI Layers or Frames | ESP8285: Web Application                |
+| [CWE-353](https://cwe.mitre.org/data/definitions/353.html) | Missing Support for Integrity Check | ESP8285: NMEA Servers                |
+| [CWE-2016](https://cwe.mitre.org/data/definitions/2016.html) | Insertion of Sensitive Information Into Sent Data | ESP8285: Web Application, NMEA Servers                |
+| [CWE-639](https://cwe.mitre.org/data/definitions/639.html) | Authorization Bypass Through User-Controlled Key | ESP8285: Web Application                |
+| [CWE-290](https://cwe.mitre.org/data/definitions/290.html) | Authentication Bypass by Spoofing | ESP8285: Web Application, NMEA Servers                |
+| [CWE-312](https://cwe.mitre.org/data/definitions/312.html) | Cleartext Storage of Sensitive Information | ESP8285: Firmware Dump                |
+| [CWE-1191](https://cwe.mitre.org/data/definitions/1191.html) | On-Chip Debug and Test Interface With Improper Access Control | ESP8285: Firmware Dump                |
 
-TODO
+Currently, that is a total of 19 weaknesses that have been found on the YDWG-02 device, that have been proven to be exploitable, and could lead to remote control of a marine vessel.
+
+## 5. Mitigations and Recommendations
+
+Mitigations for the weaknesses can be found on MITRE's website for each CWE. However, a quick fix for the most critical vulnerabilities found are implmented in the [mitigations](./mitigations/) directory.
 
 # FAQ
 
-## 1. I want to test this on my own, but the scripts are not working for me.
+I want to test this on my own, but the scripts are not working for me.
 
 Try:
 
@@ -1150,3 +1295,11 @@ dos2unix <script_name>
 ```
 
 Unfortunately, the scripts were written on both linux and windows machines, and git auto converts them.
+
+Any more questions? Submit an issue on the github repo, and I'll aggregate them here as needed.
+
+> All testing was conducted on a device owned by the researcher and isolated from public
+infrastructure. Firmware extraction and network fuzzing were performed within a
+controlled lab environment. No external services were accessed without authorization. Any
+disclosure of findings to the vendor will follow the industry-standard responsible disclosure
+timelines and mechanisms.
