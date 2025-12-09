@@ -1,4 +1,4 @@
-# Wrapper Mitigations for YachtDestroy Vulnerabilities
+# Wrapper Mitigations for YDWG-02 Vulnerabilities
 
 This directory contains configuration files and instructions to help mitigate the YachtDestroy vulnerabilities by setting up a secure reverse proxy using Nginx. The reverse proxy will handle incoming requests and forward them to the appropriate backend services while enforcing HTTPS and proper routing.
 
