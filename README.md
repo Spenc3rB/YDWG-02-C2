@@ -8,7 +8,7 @@
     - [0.2 Marine Gateways](#02-marine-gateways)
     - [0.3 Objective](#03-objective)
     - [0.4 YDWG-02: The Wireless Gateway to Remote Control of Marine Systems](#04-ydwg-02-the-wireless-gateway-to-remote-control-of-marine-systems)
-  - [1.4.1 Reconnaissance and Open Source Intelligence](#141-reconnaissance-and-open-source-intelligence)
+    - [0.5 Reconnaissance and Open Source Intelligence](#05-reconnaissance-and-open-source-intelligence)
   - [1. Reverse Engineering and Penetration Testing](#1-reverse-engineering-and-penetration-testing)
     - [1.1 Physical Hardware](#11-physical-hardware)
     - [1.2 Firmware Analysis](#12-firmware-analysis)
@@ -78,7 +78,7 @@ The manufacturer reported rapid growth since its founding in 2014. By late 2017,
 
 Its operational domain includes small to medium recreational and commercial vessels, many of which integrate this device for navigation, telemetry, and cloud-based tracking. Despite its growing market share since 2014, several legacy security and documentation shortcomings persist, particularly the use of default passwords, the absence of encryption in transit, and broken access control. Its relevance lies in that it is both an IoT node and a safety-critical control point. It presents an accessible and verifiable test platform in that it uses off-the-shelf components and provides observable network behaviors through Wi-Fi and CAN-based marine buses.
 
-## 1.4.1 Reconnaissance and Open Source Intelligence
+### 0.5 Reconnaissance and Open Source Intelligence
 
 Information was gathered from multiple open and technical resources. To start, the device included a vendor-supplied user manual published on the manufacturer website, which documents device operation, Wi-Fi defaults, server ports, RAW protocol format, and the firmware update procedure (WUPDATE.BIN). The manual’s Appendix E explicitly describes the RAW message format used to convey NMEA-2000 frames over TCP/UDP, and several sections give the default network configuration (SSID “YDWG”, default password “12345678”, web UI at http://192.168.4.1, and default NMEA server port 1456) which were essential to reproducing normal operation and test setups.
 
