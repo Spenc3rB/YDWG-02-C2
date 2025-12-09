@@ -20,11 +20,11 @@
   - [2. Exploitation and Vulnerabilities](#2-exploitation-and-vulnerabilities)
     - [2.1 NMEA 0183 Spoofing](#21-nmea-0183-spoofing)
   - [2.2 NMEA 2000 Spoofing](#22-nmea-2000-spoofing)
-    - [2.3 Web Application Analysis](#23-web-application-analysis)
-      - [2.3.1 Burp Suite](#231-burp-suite)
+  - [2.3 Web Application Analysis](#23-web-application-analysis)
+    - [2.3.1 Burp Suite](#231-burp-suite)
       - [2.3.1.1 Authentication Bypass](#2311-authentication-bypass)
       - [2.3.1.2 Sniffing Access Point Credentials](#2312-sniffing-access-point-credentials)
-      - [Cloud Application](#cloud-application)
+      - [2.3.1.3 Cloud Application](#2313-cloud-application)
     - [2.3.2 OWASP ZAP](#232-owasp-zap)
       - [2.2.2.1 XSS Vulnerability](#2221-xss-vulnerability)
       - [2.2.2.2 Clickjacking Vulnerability](#2222-clickjacking-vulnerability)
@@ -799,11 +799,11 @@ As a reminder, these ports are **NOT encrypted, or authenticated in any form**. 
 
 ---
 
-### 2.3 Web Application Analysis
+## 2.3 Web Application Analysis
 
 The web application is hosted on port 80 (unencrypted HTTP). More information about the web application was found through analysis of the firmware update mechanisms (see [./assets/pcap](./assets/pcap/) and the extracted contents of the firmware file [./assets/binwalk/_flash_contents.bin.extracted](./assets/binwalk/_flash_contents.bin.extracted)).
 
-#### 2.3.1 Burp Suite
+### 2.3.1 Burp Suite
 
 Some of the analysis was done using the device as an AP, and some of the analysis was done using the device as a client. If the device is in AP mode, the device is technically more secure, but in client mode, if the device is connected to a public wifi network, it is **much more** vulnerable to attacks, as shown in the following sections.
 
@@ -940,7 +940,7 @@ function changeWifiAp(e) {
 
 This means that we can easily spin up wireshark, and capture the traffic in the public McDonald's wifi (given the device is setup in client mode), and see the credentials in cleartext. This means the YDWG-02 essentially acts as the MiTM for us to sniff the credentials of other protected networks.
 
-#### Cloud Application
+#### 2.3.1.3 Cloud Application
 
 The device can also be configured to send data to a cloud service, which is thought to be unencrypted, and can be intercepted by an attacker on the same network. The cloud service was not tested, and out of the scope for this project, but it is worth mentioning that, from the manufacturer's documentation, that a "secret" link can be created. This link is encrypted, but for example, as simple google search for `"site:cloud.yachtd.com/s/"` gives us access to secret links that expose locations of vessels, and other sensitive information. This could be considered a violation of IDOR (Insecure Direct Object Reference), as the user can access other users' data, and potentially spoof their location.
 
